@@ -7,7 +7,7 @@ export default function Navbar() {
   const { data: session, status } = useSession();
 
   return (
-    <nav className="sticky top-4 z-50 w-full">
+    <nav className="top-4 z-50 w-full ">
       <div className="mx-auto flex max-w-7xl items-center justify-between rounded-[1.75rem] border border-fuchsia-400/20 bg-black/45 px-4 py-3 shadow-[0_0_45px_rgba(168,85,247,0.2)] backdrop-blur-xl sm:px-6">
         <Link href="/" className="group flex flex-col">
           <span className="text-[0.7rem] uppercase tracking-[0.45em] text-fuchsia-300/75">

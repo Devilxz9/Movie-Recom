@@ -61,7 +61,7 @@ export default function RecommandPage() {
                                             placeholder="Try: emotional sci-fi, intense thrillers, slow-burn mystery"
                                             value={input}
                                             onChange={(e) => setInput(e.target.value)}
-                                            className="h-14 flex-1 rounded-2xl border border-white/10 bg-black/50 px-5 text-sm text-white outline-none transition placeholder:text-zinc-500 focus:border-fuchsia-400/60 focus:bg-black/65"
+                                            className="h-12   flex-1 rounded-2xl border border-white/10 bg-black/50 px-5 py-10 sm:py-7 text-2sm text-white outline-none transition placeholder:text-zinc-500 focus:border-fuchsia-400/60 focus:bg-black/65"
                                         />
 
                                         <button
