@@ -38,7 +38,7 @@ export default function Home() {
 
               <div className="mt-10 flex flex-col gap-4 sm:flex-row">
                 <Link
-                  href="/login"
+                  href="/recommend"
                   className="rounded-full bg-fuchsia-500 px-7 py-3 text-center text-sm font-medium text-white transition hover:bg-fuchsia-400"
                 >
                   Explore recommendations
