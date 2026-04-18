@@ -49,21 +49,24 @@ Return exactly in this format:
     {
       "title": "Movie name",
       "description": "Short description"
+      "Released": "Released year"
     }
   ],
   "series": [
     {
       "title": "Series name",
       "description": "Short description"
+      "Released": "Released year"
     }
   ]
 }
 
 Return EXACTLY:
 
-- 3 movies
-- 3 series
+- 5 movies
+- 5 series
 - and do not return the same movies which the user has mentioned
+- the movies and series must compliment the user preferences and should not be random
 
 Make sure BOTH arrays are filled.
 Do not return empty arrays.

@@ -38,7 +38,7 @@ export default function Navbar() {
           }
 
           <Link
-            href={session ? "/my-recoms" : "/login"}
+            href={session ? "/myrecoms" : "/login"}
             className="rounded-full bg-gradient-to-r from-fuchsia-500 via-purple-500 to-fuchsia-400 px-4 py-2 text-sm font-semibold text-white shadow-[0_10px_30px_rgba(168,85,247,0.35)] transition hover:scale-[1.02] hover:from-fuchsia-400 hover:to-purple-400"
           >
             My Recoms

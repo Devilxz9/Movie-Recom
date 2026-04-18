@@ -19,6 +19,7 @@ model User {
 
   accounts      Account[]
   sessions      Session[]
+  savedMovies  SavedMovie[]
 }
 
 model Account {
@@ -55,4 +56,15 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+
+model SavedMovie {
+  id        String   @id @default(cuid())
+  title     String
+  image     String?
+  type      String   // movie or series
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
 }
