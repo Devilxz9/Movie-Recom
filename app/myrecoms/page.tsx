@@ -3,17 +3,15 @@ import RemoveSavedMovies from "../components/RemoveButton";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../api/auth/[...nextauth]/route";
 import { prisma } from "@/lib/prisma";
+import { redirect } from "next/navigation";
 
 
 export default async function GetMovies(){
  const session = await getServerSession(authOptions)
 
-    if(!session){
-        return Response.json(
-            {error: "unauthorised"},
-            {status:401}
-        )
-    }
+  if (!session) {
+  redirect("/login");
+}
 
     const movies = await prisma.savedMovie.findMany({
         where:{
