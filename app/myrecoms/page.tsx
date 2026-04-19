@@ -1,5 +1,4 @@
 
-import { signOut } from "next-auth/react";
 import RemoveSavedMovies from "../components/RemoveButton";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../api/auth/[...nextauth]/route";
