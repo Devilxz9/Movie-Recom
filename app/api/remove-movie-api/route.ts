@@ -12,7 +12,7 @@ const RemoveMovie = await prisma.savedMovie.delete({
 
     where:{
        id: body.id,
-       userId: session?.user.id  //only id needed
+       userId: session?.user.id 
     }
 })
 

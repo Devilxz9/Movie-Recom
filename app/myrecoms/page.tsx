@@ -1,26 +1,26 @@
-"use client"
-import { useEffect, useState } from "react";
+
 import { signOut } from "next-auth/react";
 import RemoveSavedMovies from "../components/RemoveButton";
+import { getServerSession } from "next-auth";
+import { authOptions } from "../api/auth/[...nextauth]/route";
+import { prisma } from "@/lib/prisma";
 
 
-export default function Page() {
-  // const session = await getServerSession(authOptions)
-  const [movies, setMovies] = useState([])
-useEffect(() => {
-  const fetchMovies = async()=>{
-    try {
-      const res = await fetch("/api/get-saved-movies");
-      const data = await res.json()
-      console.log("movies",data)
-      setMovies(data)
-    } catch (error) {
-      console.error("Error fetching movies", error);
+export default async function GetMovies(){
+ const session = await getServerSession(authOptions)
+
+    if(!session){
+        return Response.json(
+            {error: "unauthorised"},
+            {status:401}
+        )
     }
-  }
 
-    fetchMovies()
-}, []);
+    const movies = await prisma.savedMovie.findMany({
+        where:{
+            userId: session.user.id
+        }
+    })
 
 
 
@@ -57,7 +57,7 @@ useEffect(() => {
                   </span>
                   <span><button
           type="button"
-            onClick={() => signOut({ callbackUrl: "/" })}
+            // onClick={() => signOut({ callbackUrl: "/" })}
             className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-zinc-100 transition hover:border-white/20 hover:bg-white/10 hover:text-white"
           >
             Logout
