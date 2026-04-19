@@ -1,5 +1,7 @@
 "use client"
 import { useEffect, useState } from "react";
+import { signOut } from "next-auth/react";
+import RemoveSavedMovies from "../components/RemoveButton";
 
 
 export default function Page() {
@@ -49,9 +51,20 @@ useEffect(() => {
                     </p>
                   </div>
 
-                  <div className="inline-flex h-fit items-center rounded-full border border-fuchsia-300/20 bg-fuchsia-500/10 px-4 py-2 text-sm text-fuchsia-100">
+                  <div className="inline-flex h-fit w-fit self-center gap-5 items-center rounded-full border border-fuchsia-300/20 bg-fuchsia-500/10 px-4 py-2 text-sm text-fuchsia-100 sm:gap-6">
+                  <span>
                     {movies.length} saved
+                  </span>
+                  <span><button
+          type="button"
+            onClick={() => signOut({ callbackUrl: "/" })}
+            className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-zinc-100 transition hover:border-white/20 hover:bg-white/10 hover:text-white"
+          >
+            Logout
+          </button></span>
+                    
                   </div>
+                  
                 </div>
               </div>
             </div>
@@ -115,14 +128,15 @@ useEffect(() => {
                           <div className="shrink-0 rounded-full border border-fuchsia-300/20 bg-fuchsia-500/10 px-3 py-1 text-[11px] uppercase tracking-[0.18em] text-fuchsia-100">
                             {movie.type || "Movie"}
                           </div>
+                          <RemoveSavedMovies id={movie.id} />
                         </div>
 
-                        <p className="text-sm leading-7 text-zinc-400">
-                          Saved to your list for quick access whenever you want another watch night pick.
-                        </p>
+                       
                       </div>
+                     
                     </div>
                   ))}
+                  
                 </div>
               </div>
             )}
