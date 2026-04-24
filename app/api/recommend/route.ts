@@ -30,6 +30,9 @@ const getMovieImage = async (title: string, type: "movie" | "tv") => {
 
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions)
+  if (!session) {
+  return Response.json({ error: "Unauthorized" }, { status: 401 });
+}
 
   const savedMovies = await prisma.savedMovie.findMany({
     where:{
