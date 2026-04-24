@@ -67,4 +67,6 @@ model SavedMovie {
   userId    String
   user      User     @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
+
+   @@unique([userId, title])
 }

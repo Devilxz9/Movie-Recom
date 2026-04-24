@@ -1,11 +1,17 @@
+"use client"
 import Link from "next/link";
-import Navbar from "./components/Navbar";
 
-const featuredMovies = [
-  { title: "Midnight Orbit", genre: "Sci-Fi Thriller", score: "9.2" },
-  { title: "Velvet Shadows", genre: "Neo-Noir Drama", score: "8.8" },
-  { title: "Neon Kingdom", genre: "Fantasy Adventure", score: "9.0" },
-];
+import { AnimatePresence, motion } from "framer-motion";
+import { useEffect, useState } from "react";
+import { allMovies } from "@/data/movies";
+
+// const allMovies = [
+//   { title: "Midnight Orbit", genre: "Sci-Fi Thriller", score: "9.2" },
+//   { title: "Velvet Shadows", genre: "Neo-Noir Drama", score: "8.8" },
+//   { title: "Neon Kingdom", genre: "Fantasy Adventure", score: "9.0" },
+//   { title: "Dark Horizon", genre: "Mystery", score: "8.5" },
+//   { title: "Golden Rush", genre: "Adventure", score: "8.9" },
+// ];
 
 const picks = [
   "AI-powered suggestions tuned to your mood",
@@ -14,6 +20,16 @@ const picks = [
 ];
 
 export default function Home() {
+  const [featuredMovies, setfeaturedMovies] = useState(allMovies.slice(0, 3))
+  useEffect(() => {
+    const interval = setInterval(() => {
+      // pick random 3 movies
+      const shuffled = [...allMovies].sort(() => 0.5 - Math.random());
+      setfeaturedMovies(shuffled.slice(0, 3));
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, []);
   return (
     <main className="min-h-screen overflow-hidden bg-black text-white">
       <section className="relative isolate">
@@ -21,7 +37,7 @@ export default function Home() {
         <div className="absolute left-1/2 top-24 h-72 w-72 -translate-x-1/2 rounded-full bg-fuchsia-700/20 blur-3xl" />
 
         <div className="relative mx-auto flex min-h-screen max-w-7xl flex-col px-6 py-8 sm:px-10 lg:px-12">
-         
+
 
           <div className="grid flex-1 items-center gap-14 py-16 lg:grid-cols-[1.15fr_0.85fr] lg:py-24">
             <div className="max-w-2xl">
@@ -68,9 +84,9 @@ export default function Home() {
 
             <div
               id="featured"
-              className="relative rounded-[2rem] border border-fuchsia-400/20 bg-white/5 p-4 shadow-[0_0_80px_rgba(168,85,247,0.18)] backdrop-blur-xl"
+              className="relative  rounded-[2rem] border border-fuchsia-400/20 bg-white/5 p-4 shadow-[0_0_80px_rgba(168,85,247,0.18)] backdrop-blur-xl"
             >
-              <div className="rounded-[1.5rem] border border-white/10 bg-zinc-950/90 p-5">
+              <div className="  rounded-[1.5rem] border border-white/10 bg-zinc-950/90 p-5">
                 <div className="flex items-center justify-between border-b border-white/10 pb-4">
                   <div>
                     <p className="text-sm text-fuchsia-300">Tonight&apos;s lineup</p>
@@ -83,33 +99,39 @@ export default function Home() {
                   </div>
                 </div>
 
-                <div className="mt-5 space-y-4">
-                  {featuredMovies.map((movie, index) => (
-                    <article
-                      key={movie.title}
-                      className="rounded-2xl border border-white/8 bg-gradient-to-r from-white/8 to-fuchsia-500/10 p-4"
-                    >
-                      <div className="flex items-start justify-between gap-4">
-                        <div>
-                          <p className="text-xs uppercase tracking-[0.3em] text-zinc-400">
-                            Pick {index + 1}
-                          </p>
-                          <h3 className="mt-2 text-xl font-medium text-white">
-                            {movie.title}
-                          </h3>
-                          <p className="mt-1 text-sm text-zinc-300">
-                            {movie.genre}
-                          </p>
+                <div className="mt-5 space-y-4 min-h-[390px]">
+                  <AnimatePresence mode="wait">
+                    {featuredMovies.map((movie, index) => (
+                      <motion.article
+                        initial={{ opacity: 0, y: 20 }}
+  animate={{ opacity: 1, y: 0 }}
+  exit={{ opacity: 0, y: -20 }}
+  transition={{ duration: 0.5 }}
+                        key={movie.title}
+                        className="rounded-2xl border border-white/8 bg-gradient-to-r from-white/8 to-fuchsia-500/10 p-4"
+                      >
+                        <div className="flex items-start justify-between gap-4">
+                          <div>
+                            <p className="text-xs uppercase tracking-[0.3em] text-zinc-400">
+                              Pick {index + 1}
+                            </p>
+                            <h3 className="mt-2 text-xl font-medium text-white">
+                              {movie.title}
+                            </h3>
+                            <p className="mt-1 text-sm text-zinc-300">
+                              {movie.genre}
+                            </p>
+                          </div>
+                          <div className="rounded-2xl bg-black/40 px-3 py-2 text-right">
+                            <p className="text-xs text-zinc-400">Match</p>
+                            <p className="text-lg font-semibold text-fuchsia-300">
+                              {movie.score}
+                            </p>
+                          </div>
                         </div>
-                        <div className="rounded-2xl bg-black/40 px-3 py-2 text-right">
-                          <p className="text-xs text-zinc-400">Match</p>
-                          <p className="text-lg font-semibold text-fuchsia-300">
-                            {movie.score}
-                          </p>
-                        </div>
-                      </div>
-                    </article>
-                  ))}
+                      </motion.article>
+                    ))}
+                  </AnimatePresence>
                 </div>
 
                 <div

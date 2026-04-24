@@ -1,5 +1,7 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { getServerSession } from "next-auth";
+import { authOptions } from "../auth/[...nextauth]/route";
+import { prisma } from "@/lib/prisma";
 
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
@@ -27,6 +29,15 @@ const getMovieImage = async (title: string, type: "movie" | "tv") => {
 }
 
 export async function POST(req: Request) {
+  const session = await getServerSession(authOptions)
+
+  const savedMovies = await prisma.savedMovie.findMany({
+    where:{
+      userId: session.user.id,
+    }
+  })
+
+  const savedTitles = savedMovies.map(e=> e.title)
   try {
     const { preferences } = await req.json();
 
@@ -63,10 +74,11 @@ Return exactly in this format:
 
 Return EXACTLY:
 
-- 5 movies
-- 5 series
+- 8 movies
+- 8 series
 - and do not return the same movies which the user has mentioned
 - the movies and series must compliment the user preferences and should not be random
+- do not suggest these movies as user has already watched it ${savedTitles.join(",")}
 
 Make sure BOTH arrays are filled.
 Do not return empty arrays.

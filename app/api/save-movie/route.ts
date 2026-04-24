@@ -15,6 +15,18 @@ export async function POST(req:Request){
     const body = await req.json();
     console.log(Object.keys(prisma));
 
+    const existing = await prisma.savedMovie.findFirst({
+        where:{
+            userId:session.user.id,
+            title:body.title
+
+        }
+    });
+
+    if(existing){
+        return Response.json({ message: "already saved" }, { status: 200 });
+    }
+
     const savedMovie = await prisma.savedMovie.create({
         data: {
             title:body.title,
