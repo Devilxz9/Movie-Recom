@@ -40,7 +40,7 @@ export async function POST(req: Request) {
     }
   })
 
-  const savedTitles = savedMovies.map(e=> e.title)
+  const savedTitles = savedMovies.map((e:any)=> e.title)
   try {
     const { preferences } = await req.json();
 
