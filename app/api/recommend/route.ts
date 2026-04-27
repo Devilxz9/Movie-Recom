@@ -101,8 +101,8 @@ Return exactly in this format:
 
 Return EXACTLY:
 
-- 8 movies
-- 8 series
+- 9 movies
+- 9 series
 - and do not return the same movies which the user has mentioned
 - the movies and series must compliment the user preferences and should not be random
 - do not suggest these movies as user has already watched it ${savedTitles.join(",")}

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { allMovies } from "@/data/movies";
+import { signOut } from "next-auth/react";
 
 // const allMovies = [
 //   { title: "Midnight Orbit", genre: "Sci-Fi Thriller", score: "9.2" },
@@ -150,6 +151,7 @@ export default function Home() {
                         </span>
                       )
                     )}
+                    <button className="rounded-full border border-fuchsia-300/25 bg-black/30 px-4 py-2 text-sm text-zinc-100" onClick={()=> signOut()}>Sign out</button>
                   </div>
                 </div>
               </div>

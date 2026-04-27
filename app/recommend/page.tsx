@@ -1,12 +1,26 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import SaveButton from "../components/SaveButton"
+import { useSession } from "next-auth/react"
+import { useRouter } from "next/navigation"
+
 
 export default function RecommandPage() {
     const [input, setInput] = useState("")
     const [data, setData] = useState<any>(null)
     const [loading, setLoading] = useState(false)
+    const {data:session} =  useSession()
+    const router = useRouter()
+
+    useEffect(() => {
+         if(!session){
+        router.push("/login")
+
+    }
+    
+    }, [session, router])
+    
 
     const GetRecommendation = async () => {
         if (!input) return
@@ -25,8 +39,10 @@ export default function RecommandPage() {
             setData(result)
         } catch (error) {
             console.log("res error on ai response on frontend", error)
+        } finally{
+            setLoading(false)
         }
-        setLoading(false)
+        
     }
 
     return (
