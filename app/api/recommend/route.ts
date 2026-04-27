@@ -2,6 +2,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]/route";
 import { prisma } from "@/lib/prisma";
+import { redis } from "@/lib/redis";
 
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
@@ -10,6 +11,7 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 const getMovieImage = async (title: string, type: "movie" | "tv") => {
 
   try {
+    // fuzzy search - first searching movie got from the Ai and picking the closes result
     const res = await fetch(`https://api.themoviedb.org/3/search/${type}?api_key=${process.env.TMDB_API_KEY}&query=${encodeURIComponent(title)}`)
 
     const data = await res.json()
@@ -34,6 +36,7 @@ export async function POST(req: Request) {
   return Response.json({ error: "Unauthorized" }, { status: 401 });
 }
 
+// writing this so ai knows which movies user has saved so it wont recommend the same movies/series again
   const savedMovies = await prisma.savedMovie.findMany({
     where:{
       userId: session.user.id,
@@ -43,6 +46,27 @@ export async function POST(req: Request) {
   const savedTitles = savedMovies.map((e:any)=> e.title)
   try {
     const { preferences } = await req.json();
+
+    // CREATE CACHE KEY FOR REDIS
+    let query = preferences.toLowerCase()
+
+    const stopWord = ["best", "top", "movies", "movie", "films", "film", "show", "series"];
+    query = query
+    .split(/\s+/)
+    .filter((word:string) => !stopWord.includes(word))
+    .join(" ")
+    const key = "movies:" + query.replace(/\s+/g, "-")
+
+    // CHECH CACHE FIRST
+    const cached = await redis.get(key);
+    if(cached){
+      console.log("cahche hit")
+      return Response.json({
+        source: "cache",
+        ...cached
+      })
+    }
+    console.log(" CACHE MISS → calling APIs");
 
     const prompt = `
 You are a JSON generator.
@@ -131,10 +155,19 @@ Do not return empty arrays.
       })
     )
 
-    return Response.json({
+    // final movie data with name and posters
+    const finalData = {
       movies: MovieWithImages,
       series: SeriesWithImaages
-    });
+    };
+
+    // STORE IN REDIS FOR 10MINS
+    await redis.set(key, finalData,{ex: 600})
+
+    return Response.json({
+      source:"recomend api",
+      ...finalData
+    })
 
   } catch (error) {
     console.error("ERROR:", error);
