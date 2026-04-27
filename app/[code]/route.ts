@@ -1,9 +1,10 @@
 import {prisma} from "@/lib/prisma";
+import { NextRequest } from "next/server";
 
 
-export async function GET(req:Request,{params}:{params:{code:string}}){
+export async function GET(req:NextRequest, context:{params: Promise<{code:string}>}){
     try {
-        const {code} = await params
+        const {code} = await context.params
         const data = await prisma.url.findUnique({
             where:{
                 shortCode:code
