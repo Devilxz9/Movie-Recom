@@ -8,7 +8,7 @@ import { redis } from "@/lib/redis";
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
 
-const getMovieImage = async (title: string, type: "movie" | "tv") => {
+const getMovieData = async (title: string, type: "movie" | "tv") => {
 
   try {
     // fuzzy search - first searching movie got from the Ai and picking the closes result
@@ -16,13 +16,27 @@ const getMovieImage = async (title: string, type: "movie" | "tv") => {
 
     const data = await res.json()
 
-    if (data.results && data.results.length > 0 && data.results[0].poster_path) {
+    if (data.results && data.results.length > 0) {
+      const movie = data.results[0] // store first result
 
-      return `https://image.tmdb.org/t/p/w500${data.results[0].poster_path}`;
-    } else{
-      return null
+      let image = null
+      if (movie.poster_path) {
+        image = `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+      }
+
+      return {
+        image: image,
+        id: movie.id //needed this tmdb movie id for dfetching trailer
+      }
+    } else {
+      return {
+        image: null,
+        id: null
+      }
     }
-    
+
+
+
   } catch (error) {
     console.log("TMBD error:", error)
     return null
@@ -33,17 +47,17 @@ const getMovieImage = async (title: string, type: "movie" | "tv") => {
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions)
   if (!session) {
-  return Response.json({ error: "Unauthorized" }, { status: 401 });
-}
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
-// writing this so ai knows which movies user has saved so it wont recommend the same movies/series again
+  // writing this so ai knows which movies user has saved so it wont recommend the same movies/series again
   const savedMovies = await prisma.savedMovie.findMany({
-    where:{
+    where: {
       userId: session.user.id,
     }
   })
 
-  const savedTitles = savedMovies.map((e:any)=> e.title)
+  const savedTitles = savedMovies.map((e: any) => e.title)
   try {
     const { preferences } = await req.json();
 
@@ -52,14 +66,14 @@ export async function POST(req: Request) {
 
     const stopWord = ["best", "top", "movies", "movie", "films", "film", "show", "series"];
     query = query
-    .split(/\s+/)
-    .filter((word:string) => !stopWord.includes(word))
-    .join(" ")
+      .split(/\s+/)
+      .filter((word: string) => !stopWord.includes(word))
+      .join(" ")
     const key = "movies:" + query.replace(/\s+/g, "-")
 
     // CHECH CACHE FIRST
     const cached = await redis.get(key);
-    if(cached){
+    if (cached) {
       console.log("cahche hit")
       return Response.json({
         source: "cache",
@@ -136,21 +150,23 @@ Do not return empty arrays.
     }
 
     const MovieWithImages = await Promise.all(
-      parsed.movies.map(async(movie:any)=>{
-        const image = await getMovieImage(movie.title, "movie");
-        return{
+      parsed.movies.map(async (movie: any) => {
+        const data = await getMovieData(movie.title, "movie");
+        return {
           ...movie,
-          image,
+          image:data?.image,
+          tmdbId:data?.id
         }
       })
     );
 
     const SeriesWithImaages = await Promise.all(
-      parsed.series.map(async(show:any)=>{
-        const image = await getMovieImage(show.title, "tv");
-        return{
+      parsed.series.map(async (show: any) => {
+        const data = await getMovieData(show.title, "tv");
+        return {
           ...show,
-          image,
+          image:data?.image,
+          tmdbId:data?.id
         }
       })
     )
@@ -160,12 +176,13 @@ Do not return empty arrays.
       movies: MovieWithImages,
       series: SeriesWithImaages
     };
+    console.log(finalData.movies)
 
     // STORE IN REDIS FOR 10MINS
-    await redis.set(key, finalData,{ex: 600})
+    await redis.set(key, finalData, { ex: 600 })
 
     return Response.json({
-      source:"recomend api",
+      source: "recomend api",
       ...finalData
     })
 

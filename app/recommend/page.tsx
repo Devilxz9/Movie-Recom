@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import SaveButton from "../components/SaveButton"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
+import GetTrailer from "../components/GetTrailers"
 
 
 export default function RecommandPage() {
@@ -170,6 +171,7 @@ export default function RecommandPage() {
                                                         {show.description}
                                                     </p>
                                                     <SaveButton movie={show}/>
+                                                    <GetTrailer tmdbId={show.tmdbId} type="tv"/>
                                                 </div>
                                             </div>
                                         ))}
@@ -229,6 +231,7 @@ export default function RecommandPage() {
                                                         {movie.description}
                                                     </p>
                                                     <SaveButton movie={movie}/>
+                                                    <GetTrailer tmdbId={movie.tmdbId} type="movie"/>
                                                 </div>
                                             </div>
                                         ))}
