@@ -18,7 +18,8 @@ export default function SaveButton({ movie }: any) {
                 body: JSON.stringify({
                     title: movie.title,
                     image: movie.image,
-                    type: "show"
+                    type: movie.type,
+                    tmdbId: movie.tmdbId
                 }),
             });
             // const data = await res.json()

@@ -170,7 +170,7 @@ export default function RecommandPage() {
                                                     <p className="text-sm leading-7 text-zinc-300">
                                                         {show.description}
                                                     </p>
-                                                    <SaveButton movie={show}/>
+                                                    <SaveButton movie={{...show, type:"tv"}}/>
                                                     <GetTrailer tmdbId={show.tmdbId} type="tv"/>
                                                 </div>
                                             </div>
@@ -230,7 +230,7 @@ export default function RecommandPage() {
                                                     <p className="text-sm leading-7 text-zinc-300">
                                                         {movie.description}
                                                     </p>
-                                                    <SaveButton movie={movie}/>
+                                                    <SaveButton movie={{...movie, type:"movie"}}/>
                                                     <GetTrailer tmdbId={movie.tmdbId} type="movie"/>
                                                 </div>
                                             </div>

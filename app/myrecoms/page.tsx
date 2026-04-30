@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "../api/auth/[...nextauth]/route";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
+import GetTrailer from "../components/GetTrailers";
 
 
 export default async function GetMovies(){
@@ -117,19 +118,25 @@ export default async function GetMovies(){
                         </div>
                       </div>
 
-                      <div className="space-y-4 bg-[linear-gradient(180deg,rgba(12,12,16,0.96),rgba(10,10,14,1))] p-6">
-                        <div className="flex items-start justify-between gap-3">
-                          <h3 className="text-lg font-semibold leading-7 text-white">
-                            {movie.title}
-                          </h3>
-                          <div className="shrink-0 rounded-full border border-fuchsia-300/20 bg-fuchsia-500/10 px-3 py-1 text-[11px] uppercase tracking-[0.18em] text-fuchsia-100">
-                            {movie.type || "Movie"}
-                          </div>
-                          <RemoveSavedMovies id={movie.id} />
-                        </div>
+                     <div className="space-y-4 bg-[linear-gradient(180deg,rgba(12,12,16,0.96),rgba(10,10,14,1))] p-4 sm:p-6">
+  {/* Header row */}
+  <div className="flex flex-wrap items-start justify-between gap-2 sm:gap-3">
+    <h3 className="min-w-0 flex-1 text-base font-semibold leading-6 text-white sm:text-lg sm:leading-7">
+      {movie.title}
+    </h3>
+    <div className="flex shrink-0 items-center gap-2">
+      <div className="rounded-full border border-fuchsia-300/20 bg-fuchsia-500/10 px-2 py-0.5 text-[10px] uppercase tracking-[0.18em] text-fuchsia-100 sm:px-3 sm:py-1 sm:text-[11px]">
+        {movie.type}
+      </div>
+      <RemoveSavedMovies id={movie.id} />
+    </div>
+  </div>
 
-                       
-                      </div>
+  {/* Trailer — full width on all screens */}
+  <div className="w-full">
+    <GetTrailer tmdbId={movie.tmdbId} type={movie.type} />
+  </div>
+</div>
                      
                     </div>
                   ))}

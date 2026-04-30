@@ -18,7 +18,7 @@ export async function POST(req:Request){
     const existing = await prisma.savedMovie.findFirst({
         where:{
             userId:session.user.id,
-            title:body.title
+            tmdbId:body.tmdbId
 
         }
     });
@@ -33,6 +33,7 @@ export async function POST(req:Request){
             image:body.image,
             type:body.type,
             userId: session.user.id,
+            tmdbId:body.tmdbId
         },
     });
 

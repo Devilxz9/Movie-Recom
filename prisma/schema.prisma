@@ -4,11 +4,8 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
-  
-  
+  provider = "postgresql"
 }
-
 
 model User {
   id            String    @id @default(cuid())
@@ -17,24 +14,24 @@ model User {
   emailVerified DateTime?
   image         String?
 
-  accounts      Account[]
-  sessions      Session[]
-  savedMovies  SavedMovie[]
+  accounts    Account[]
+  sessions    Session[]
+  savedMovies SavedMovie[]
 }
 
 model Account {
-  id                 String  @id @default(cuid())
-  userId             String
-  type               String
-  provider           String
-  providerAccountId  String
-  refresh_token      String?
-  access_token       String?
-  expires_at         Int?
-  token_type         String?
-  scope              String?
-  id_token           String?
-  session_state      String?
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -58,22 +55,22 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
-
 model SavedMovie {
   id        String   @id @default(cuid())
   title     String
   image     String?
-  type      String   // movie or series
+  type      String // movie or series
   userId    String
+  tmdbId    Int?
   user      User     @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
 
-   @@unique([userId, title])
+  @@unique([userId, title])
 }
 
 model Url {
-  id          Int    @id @default(autoincrement())
-  shortCode   String @unique
+  id          Int      @id @default(autoincrement())
+  shortCode   String   @unique
   originalUrl String
   createdAt   DateTime @default(now())
 }
