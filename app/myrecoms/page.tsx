@@ -7,18 +7,18 @@ import { redirect } from "next/navigation";
 import GetTrailer from "../components/GetTrailers";
 
 
-export default async function GetMovies(){
- const session = await getServerSession(authOptions)
+export default async function GetMovies() {
+  const session = await getServerSession(authOptions)
 
   if (!session) {
-  redirect("/login");
-}
+    redirect("/login");
+  }
 
-    const movies = await prisma.savedMovie.findMany({
-        where:{
-            userId: session.user.id
-        }
-    })
+  const movies = await prisma.savedMovie.findMany({
+    where: {
+      userId: session.user.id
+    }
+  })
 
 
 
@@ -50,19 +50,13 @@ export default async function GetMovies(){
                   </div>
 
                   <div className="inline-flex h-fit w-fit self-center gap-5 items-center rounded-full border border-fuchsia-300/20 bg-fuchsia-500/10 px-4 py-2 text-sm text-fuchsia-100 sm:gap-6">
-                  <span>
-                    {movies.length} saved
-                  </span>
-                  <span><button
-          type="button"
-            // onClick={() => signOut({ callbackUrl: "/" })}
-            className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-zinc-100 transition hover:border-white/20 hover:bg-white/10 hover:text-white"
-          >
-            Logout
-          </button></span>
-                    
+                    <span>
+                      {movies.length} saved
+                    </span>
+                   
+
                   </div>
-                  
+
                 </div>
               </div>
             </div>
@@ -118,29 +112,29 @@ export default async function GetMovies(){
                         </div>
                       </div>
 
-                     <div className="space-y-4 bg-[linear-gradient(180deg,rgba(12,12,16,0.96),rgba(10,10,14,1))] p-4 sm:p-6">
-  {/* Header row */}
-  <div className="flex flex-wrap items-start justify-between gap-2 sm:gap-3">
-    <h3 className="min-w-0 flex-1 text-base font-semibold leading-6 text-white sm:text-lg sm:leading-7">
-      {movie.title}
-    </h3>
-    <div className="flex shrink-0 items-center gap-2">
-      <div className="rounded-full border border-fuchsia-300/20 bg-fuchsia-500/10 px-2 py-0.5 text-[10px] uppercase tracking-[0.18em] text-fuchsia-100 sm:px-3 sm:py-1 sm:text-[11px]">
-        {movie.type}
-      </div>
-      <RemoveSavedMovies id={movie.id} />
-    </div>
-  </div>
+                      <div className="space-y-4 bg-[linear-gradient(180deg,rgba(12,12,16,0.96),rgba(10,10,14,1))] p-4 sm:p-6">
+                        {/* Header row */}
+                        <div className="flex flex-wrap items-start justify-between gap-2 sm:gap-3">
+                          <h3 className="min-w-0 flex-1 text-base font-semibold leading-6 text-white sm:text-lg sm:leading-7">
+                            {movie.title}
+                          </h3>
+                          <div className="flex shrink-0 items-center gap-2">
+                            <div className="rounded-full border border-fuchsia-300/20 bg-fuchsia-500/10 px-2 py-0.5 text-[10px] uppercase tracking-[0.18em] text-fuchsia-100 sm:px-3 sm:py-1 sm:text-[11px]">
+                              {movie.type}
+                            </div>
+                            <RemoveSavedMovies id={movie.id} />
+                          </div>
+                        </div>
 
-  {/* Trailer — full width on all screens */}
-  <div className="w-full">
-    <GetTrailer tmdbId={movie.tmdbId} type={movie.type} />
-  </div>
-</div>
-                     
+                        {/* Trailer — full width on all screens */}
+                        <div className="w-full">
+                          <GetTrailer tmdbId={movie.tmdbId} type={movie.type} />
+                        </div>
+                      </div>
+
                     </div>
                   ))}
-                  
+
                 </div>
               </div>
             )}
