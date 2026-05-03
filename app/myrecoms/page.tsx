@@ -1,22 +1,23 @@
 
+export const metadata = {
+  title: "Movie Recom - Saved List",
+}
 import RemoveSavedMovies from "../components/RemoveButton";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../api/auth/[...nextauth]/route";
 import { prisma } from "@/lib/prisma";
-import { redirect } from "next/navigation";
+
 import GetTrailer from "../components/GetTrailers";
 
 
 export default async function GetMovies() {
   const session = await getServerSession(authOptions)
 
-  if (!session) {
-    redirect("/login");
-  }
+
 
   const movies = await prisma.savedMovie.findMany({
     where: {
-      userId: session.user.id
+      userId: session?.user.id
     }
   })
 

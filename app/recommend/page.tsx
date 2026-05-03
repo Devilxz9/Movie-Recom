@@ -1,9 +1,9 @@
+
 "use client"
 
-import { useEffect, useState } from "react"
+import {useState, useEffect } from "react"
 import SaveButton from "../components/SaveButton"
-import { useSession } from "next-auth/react"
-import { useRouter } from "next/navigation"
+import Head from "next/head"
 import GetTrailer from "../components/GetTrailers"
 
 
@@ -11,17 +11,14 @@ export default function RecommandPage() {
     const [input, setInput] = useState("")
     const [data, setData] = useState<any>(null)
     const [loading, setLoading] = useState(false)
-    const {data:session} =  useSession()
-    const router = useRouter()
-
     useEffect(() => {
-         if(!session){
-        router.push("/login")
+      document.title = "Movie Recom - Recommendations"
+    
+   
+    }, [])
+    
 
-    }
-    
-    }, [session, router])
-    
+
 
     const GetRecommendation = async () => {
         if (!input) return
@@ -47,6 +44,7 @@ export default function RecommandPage() {
     }
 
     return (
+        
         <main className="min-h-screen overflow-hidden bg-black text-white">
             <div className="relative isolate min-h-screen">
                 <div className="absolute inset-x-0 top-0 -z-10 h-80 bg-[radial-gradient(circle_at_top,_rgba(192,38,211,0.24),_transparent_55%)]" />
@@ -303,5 +301,6 @@ export default function RecommandPage() {
                 </section>
             </div>
         </main>
+     
     )
 }
