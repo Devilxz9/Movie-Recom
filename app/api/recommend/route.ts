@@ -149,27 +149,49 @@ Do not return empty arrays.
       )
     }
 
-    const MovieWithImages = await Promise.all(
-      parsed.movies.map(async (movie: any) => {
+    // const MovieWithImages = await Promise.all(
+    //   parsed.movies.map(async (movie: any) => {
+    //     const data = await getMovieData(movie.title, "movie");
+    //     return {
+    //       ...movie,
+    //       image:data?.image,
+    //       tmdbId:data?.id
+    //     }
+    //   })
+    // );
+
+    // const SeriesWithImaages = await Promise.all(
+    //   parsed.series.map(async (show: any) => {
+    //     const data = await getMovieData(show.title, "tv");
+    //     return {
+    //       ...show,
+    //       image:data?.image,
+    //       tmdbId:data?.id
+    //     }
+    //   })
+    // )
+
+    // HERE I MERGED BOTH OF THIS MOVIEWITHIMAGES AND SERIESWITHIMAGES TO RUN PARALLELY EARLIER IT WAS RUNNING FIRST MOVIEWITHIMAGES AND THEN SERIESWITHIMAGES WHICH WAS TAKING MORE TIME CUZ IT WAS RUNNING SUBSIQUENTIALLY
+
+    const [MovieWithImages, SeriesWithImaages] = await Promise.all([
+      Promise.all( parsed.movies.map(async (movie: any) => {
         const data = await getMovieData(movie.title, "movie");
         return {
           ...movie,
           image:data?.image,
           tmdbId:data?.id
         }
-      })
-    );
+      })),
 
-    const SeriesWithImaages = await Promise.all(
-      parsed.series.map(async (show: any) => {
+      Promise.all(parsed.series.map(async (show: any) => {
         const data = await getMovieData(show.title, "tv");
         return {
           ...show,
           image:data?.image,
           tmdbId:data?.id
         }
-      })
-    )
+      }))
+    ]);
 
     // final movie data with name and posters
     const finalData = {
@@ -179,7 +201,7 @@ Do not return empty arrays.
     console.log(finalData.movies)
 
     // STORE IN REDIS FOR 10MINS
-    await redis.set(key, finalData, { ex: 600 })
+     redis.set(key, finalData, { ex: 600 }).catch(console.error)
 
     return Response.json({
       source: "recomend api",
