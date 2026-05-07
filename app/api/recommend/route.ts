@@ -51,15 +51,26 @@ export async function POST(req: Request) {
   }
 
   // writing this so ai knows which movies user has saved so it wont recommend the same movies/series again
-  const savedMovies = await prisma.savedMovie.findMany({
-    where: {
-      userId: session.user.id,
-    }
-  })
+  // const savedMovies = await prisma.savedMovie.findMany({
+  //   where: {
+  //     userId: session.user.id,
+  //   }
+  // })
 
-  const savedTitles = savedMovies.map((e: any) => e.title)
+  // const savedTitles = savedMovies.map((e: any) => e.title)
   try {
     const { preferences } = await req.json();
+
+    //finding saved,liked,didsliked movies and then giving instrcutions to LLM
+    const [SavedMovies, LikedMovies, DislikedMovies] = await Promise.all([
+      prisma.savedMovie.findMany({where:{userId:session.user.id}}),
+      prisma.movieReaction.findMany({where:{userId:session.user.id, reaction:"like"}}),
+      prisma.movieReaction.findMany({where:{userId:session.user.id, reaction: "dislike"}})
+    ])
+
+    const savedTitles = SavedMovies.map((e:any) => e.title)
+    const likedTitles = LikedMovies.map((e:any)=> e.title)
+    const dislikedTitles = DislikedMovies.map((e:any)=> e.title)
 
     // CREATE CACHE KEY FOR REDIS
     let query = preferences.toLowerCase()
@@ -115,11 +126,14 @@ Return exactly in this format:
 
 Return EXACTLY:
 
-- 8 movies
-- 8 series
+- 12 movies
+- 12 series
 - and do not return the same movies which the user has mentioned
 - the movies and series must compliment the user preferences and should not be random
-- do not suggest these movies as user has already watched it ${savedTitles.join(",")}
+- do not suggest these movies as user has already saved it ${savedTitles.join(",")}
+- do not suggest these movies as user has already liked them: ${likedTitles.join(", ")}
+- do not suggest these movies as user has disliked them, never recommend similar ones: ${dislikedTitles.join(", ")}
+- user has liked these movies, recommend similar ones: ${likedTitles.join(", ")}
 
 Make sure BOTH arrays are filled.
 Do not return empty arrays.

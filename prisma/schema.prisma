@@ -17,6 +17,8 @@ model User {
   accounts    Account[]
   sessions    Session[]
   savedMovies SavedMovie[]
+  MovieReaction MovieReaction[]
+ 
 }
 
 model Account {
@@ -73,4 +75,18 @@ model Url {
   shortCode   String   @unique
   originalUrl String
   createdAt   DateTime @default(now())
+}
+
+model MovieReaction {
+  id        String   @id @default(cuid())
+  title     String
+  image     String?
+  type      String        // "movie" or "tv"
+  tmdbId    Int?
+  reaction  String        // "like" or "dislike"
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, title]) // prevents duplicate reactions on same movie
 }

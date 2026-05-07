@@ -5,6 +5,8 @@ import {useState, useEffect } from "react"
 import SaveButton from "../components/SaveButton"
 import Head from "next/head"
 import GetTrailer from "../components/GetTrailers"
+import Likebutton from "../components/LikeButton"
+import DisLikebutton from "../components/DislikeButton"
 
 
 export default function RecommandPage() {
@@ -170,6 +172,8 @@ export default function RecommandPage() {
                                                     </p>
                                                     <SaveButton movie={{...show, type:"tv"}}/>
                                                     <GetTrailer tmdbId={show.tmdbId} type="tv"/>
+                                                    <Likebutton movie={{...show, type:"tv"}}/>
+                                                    <DisLikebutton movie={{...show, type:"tv"}}/>
                                                 </div>
                                             </div>
                                         ))}
@@ -230,71 +234,17 @@ export default function RecommandPage() {
                                                     </p>
                                                     <SaveButton movie={{...movie, type:"movie"}}/>
                                                     <GetTrailer tmdbId={movie.tmdbId} type="movie"/>
+                                                    <Likebutton movie={{...movie, type:"movie"}}/>
+                                                    <DisLikebutton movie={{...movie, type:"movie"}}/>
+                                                    
+                                                    
                                                 </div>
                                             </div>
                                         ))}
                                     </div>
                                 </div>
 
-                                {/* <div>
-                                    <div className="mb-5 flex items-center justify-between gap-4">
-                                        <div>
-                                            <p className="text-xs uppercase tracking-[0.32em] text-fuchsia-300/80">
-                                                Curated Picks
-                                            </p>
-                                            <h2 className="mt-2 text-2xl font-semibold text-white">
-                                                Series
-                                            </h2>
-                                        </div>
-                                        <div className="rounded-full border border-fuchsia-300/20 bg-fuchsia-500/10 px-3 py-1 text-sm text-fuchsia-100">
-                                            {data.series?.length || 0} picks
-                                        </div>
-                                    </div>
-
-                                    <div className="grid gap-7 md:grid-cols-2 xl:grid-cols-3">
-                                        {data.series?.map((show: any, index: number) => (
-                                            <div
-                                                key={index}
-                                                className="group overflow-hidden rounded-[1.75rem] border border-white/10 bg-[#09090c] shadow-[0_24px_70px_rgba(0,0,0,0.42)] transition duration-300 hover:-translate-y-1 hover:border-fuchsia-400/25 hover:shadow-[0_30px_80px_rgba(20,20,30,0.55)]"
-                                            >
-                                                <div className="border-b border-white/8 bg-gradient-to-br from-zinc-900 via-[#14111c] to-purple-950/30 p-4">
-                                                    <div className="flex h-64 items-center justify-center overflow-hidden rounded-[1.35rem] bg-[linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.02))] ring-1 ring-white/10 sm:h-72">
-                                                        <div className="flex h-full w-full items-center justify-center bg-[radial-gradient(circle_at_top,_rgba(168,85,247,0.14),_transparent_62%)] p-3">
-                                                            {show.image ? (
-                                                                <img
-                                                                    src={show.image}
-                                                                    alt={show.title}
-                                                                    className="h-full w-full rounded-[1rem] object-contain object-center"
-                                                                />
-                                                            ) : (
-                                                                <div className="flex h-full w-full items-center justify-center rounded-[1rem] border border-dashed border-white/10 bg-black/20 text-sm text-zinc-500">
-                                                                    No Image
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <div className="space-y-4 bg-[linear-gradient(180deg,rgba(12,12,16,0.96),rgba(10,10,14,1))] p-6">
-                                                    <div className="flex items-start justify-between gap-3">
-                                                        <h3 className="text-lg font-semibold leading-7 text-white">
-                                                            {show.title}
-                                                        </h3>
-                                                        <div className="shrink-0 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] uppercase tracking-[0.18em] text-zinc-200">
-                                                            Series
-                                                        </div>
-                                                    </div>
-                                                    <p className="text-sm leading-7 text-zinc-300">
-                                                        {show.Released}
-                                                    </p>
-                                                    <p className="text-sm leading-7 text-zinc-300">
-                                                        {show.description}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div> */}
+                                
                             </div>
                         )}
                     </div>
