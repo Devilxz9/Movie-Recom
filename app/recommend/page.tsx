@@ -170,10 +170,19 @@ export default function RecommandPage() {
                                                     <p className="text-sm leading-7 text-zinc-300">
                                                         {show.description}
                                                     </p>
+                                                    <div className="flex justify-between">
+                                                        <span>
+
+
                                                     <SaveButton movie={{...show, type:"tv"}}/>
-                                                    <GetTrailer tmdbId={show.tmdbId} type="tv"/>
+                                                        </span>
+                                                        <span className="flex gap-3">
+
                                                     <Likebutton movie={{...show, type:"tv"}}/>
                                                     <DisLikebutton movie={{...show, type:"tv"}}/>
+                                                        </span>
+                                                    </div>
+                                                    <GetTrailer tmdbId={show.tmdbId} type="tv"/>
                                                 </div>
                                             </div>
                                         ))}
@@ -217,7 +226,7 @@ export default function RecommandPage() {
                                                     </div>
                                                 </div>
 
-                                                <div className="space-y-4 bg-[linear-gradient(180deg,rgba(12,12,16,0.96),rgba(10,10,14,1))] p-6">
+                                                <div className="space-y-4 bg-[linear-gradient(180deg,rgba(12,12,16,0.96),rgba(10,10,14,1))] p-6 ">
                                                     <div className="flex items-start justify-between gap-3">
                                                         <h3 className="text-lg font-semibold leading-7 text-white">
                                                             {movie.title}
@@ -232,10 +241,19 @@ export default function RecommandPage() {
                                                     <p className="text-sm leading-7 text-zinc-300">
                                                         {movie.description}
                                                     </p>
+                                                    <div className="flex justify-between">
+                                                        <span >
                                                     <SaveButton movie={{...movie, type:"movie"}}/>
-                                                    <GetTrailer tmdbId={movie.tmdbId} type="movie"/>
+
+                                                        </span>
+                                                        <span className="flex gap-3">
+
+
                                                     <Likebutton movie={{...movie, type:"movie"}}/>
                                                     <DisLikebutton movie={{...movie, type:"movie"}}/>
+                                                        </span>
+                                                    </div>
+                                                    <GetTrailer tmdbId={movie.tmdbId} type="movie"/>
                                                     
                                                     
                                                 </div>
