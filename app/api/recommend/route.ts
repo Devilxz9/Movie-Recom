@@ -59,19 +59,10 @@ export async function POST(req: Request) {
 
   // const savedTitles = savedMovies.map((e: any) => e.title)
   try {
-    const { preferences } = await req.json();
+    const { preferences, seen= [] } = await req.json();
 
-    //finding saved,liked,didsliked movies and then giving instrcutions to LLM
-    const [SavedMovies, LikedMovies, DislikedMovies] = await Promise.all([
-      prisma.savedMovie.findMany({where:{userId:session.user.id}}),
-      prisma.movieReaction.findMany({where:{userId:session.user.id, reaction:"like"}}),
-      prisma.movieReaction.findMany({where:{userId:session.user.id, reaction: "dislike"}})
-    ])
-
-    const savedTitles = SavedMovies.map((e:any) => e.title)
-    const likedTitles = LikedMovies.map((e:any)=> e.title)
-    const dislikedTitles = DislikedMovies.map((e:any)=> e.title)
-
+  
+    
     // CREATE CACHE KEY FOR REDIS
     let query = preferences.toLowerCase()
 
@@ -80,7 +71,7 @@ export async function POST(req: Request) {
       .split(/\s+/)
       .filter((word: string) => !stopWord.includes(word))
       .join(" ")
-    const key = "movies:" + query.replace(/\s+/g, "-")
+    const key = `movies:${session.user.id}:${query}:page-${seen.length}`
 
     // CHECH CACHE FIRST
     const cached = await redis.get(key);
@@ -92,12 +83,28 @@ export async function POST(req: Request) {
       })
     }
     console.log(" CACHE MISS → calling APIs");
+      //finding saved,liked,didsliked movies and then giving instrcutions to LLM
+    const [SavedMovies, LikedMovies, DislikedMovies] = await Promise.all([
+      prisma.savedMovie.findMany({
+        where: { userId: session.user.id },
+        select: { title: true }
+      }),
+      prisma.movieReaction.findMany({
+        where: { userId: session.user.id, reaction: "like" },
+        select: { title: true }
+      }),
+      prisma.movieReaction.findMany({
+        where: { userId: session.user.id, reaction: "dislike" },
+        select: { title: true }
+      })
+    ])
+
+    const savedTitles = SavedMovies.map((e: any) => e.title)
+    const likedTitles = LikedMovies.map((e: any) => e.title)
+    const dislikedTitles = DislikedMovies.map((e: any) => e.title)
 
     const prompt = `
 You are a JSON generator.
-
-User likes:
-${preferences}
 
 Return ONLY valid JSON.
 
@@ -111,14 +118,14 @@ Return exactly in this format:
   "movies": [
     {
       "title": "Movie name",
-      "description": "Short description"
+      "description": "Short description",
       "Released": "Released year"
     }
   ],
   "series": [
     {
       "title": "Series name",
-      "description": "Short description"
+      "description": "Short description",
       "Released": "Released year"
     }
   ]
@@ -126,14 +133,8 @@ Return exactly in this format:
 
 Return EXACTLY:
 
-- 2 movies
-- 2 series
-- and do not return the same movies which the user has mentioned
-- the movies and series must compliment the user preferences and should not be random
-- do not suggest these movies as user has already saved it ${savedTitles.join(",")}
-- do not suggest these movies as user has already liked them: ${likedTitles.join(", ")}
-- do not suggest these movies as user has disliked them, never recommend similar ones: ${dislikedTitles.join(", ")}
-- user has liked these movies, recommend similar ones: ${likedTitles.join(", ")}
+Recommend 4 movies and 4 series for someone who likes: ${preferences}.
+Exclude: ${[...savedTitles, ...likedTitles, ...seen].join(", ")}
 
 Make sure BOTH arrays are filled.
 Do not return empty arrays.
@@ -147,7 +148,7 @@ Do not return empty arrays.
     const result = await model.generateContent(prompt);
 
     const response = await result.response;
-    let text = response.text();
+    let text = await response.text();
     // 🔥 CLEAN STEP
     text = text.replace(/```json/g, "").replace(/```/g, "").trim();
     console.log("clean TEXT:", text);
@@ -188,12 +189,12 @@ Do not return empty arrays.
     // HERE I MERGED BOTH OF THIS MOVIEWITHIMAGES AND SERIESWITHIMAGES TO RUN PARALLELY EARLIER IT WAS RUNNING FIRST MOVIEWITHIMAGES AND THEN SERIESWITHIMAGES WHICH WAS TAKING MORE TIME CUZ IT WAS RUNNING SUBSIQUENTIALLY
 
     const [MovieWithImages, SeriesWithImaages] = await Promise.all([
-      Promise.all( parsed.movies.map(async (movie: any) => {
+      Promise.all(parsed.movies.map(async (movie: any) => {
         const data = await getMovieData(movie.title, "movie");
         return {
           ...movie,
-          image:data?.image,
-          tmdbId:data?.id
+          image: data?.image,
+          tmdbId: data?.id
         }
       })),
 
@@ -201,8 +202,8 @@ Do not return empty arrays.
         const data = await getMovieData(show.title, "tv");
         return {
           ...show,
-          image:data?.image,
-          tmdbId:data?.id
+          image: data?.image,
+          tmdbId: data?.id
         }
       }))
     ]);
@@ -215,7 +216,7 @@ Do not return empty arrays.
     console.log(finalData.movies)
 
     // STORE IN REDIS FOR 10MINS
-     redis.set(key, finalData, { ex: 600 }).catch(console.error)
+    redis.set(key, finalData, { ex: 600 }).catch(console.error)
 
     return Response.json({
       source: "recomend api",
