@@ -42,7 +42,7 @@ export default async function GetMovies() {
                     </div>
 
                     <h1 className="mt-5 text-3xl font-semibold tracking-tight text-white sm:text-4xl lg:text-5xl">
-                      Your personal movie shelf.
+                      Your personal movie shelf
                     </h1>
 
                     <p className="mt-4 text-sm leading-7 text-zinc-300 sm:text-base">
