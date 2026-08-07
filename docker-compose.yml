@@ -1,0 +1,8 @@
+services:
+ movierecom:
+  image: devilxz9/devilxz9:movie-recom-1
+  container_name: movierecom
+  ports:
+    - "3000:3000"
+  env_file: 
+    - .env

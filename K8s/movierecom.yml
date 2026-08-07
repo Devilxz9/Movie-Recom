@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: movierecom
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: movierecom
+
+  template:
+    metadata:
+      labels:
+        app: movierecom
+
+    spec:
+      containers:
+        - name: movierecom
+          image: devilxz9/devilxz9:movie-recom-1
+          ports:
+            - containerPort: 3000
+
+          envFrom:
+           - secretRef:
+               name: movierecom-secret
+
+
+---
+apiVersion: v1
+kind: Service
+
+metadata:
+  name: movierecom-service
+
+spec:
+  selector:
+    app: movierecom
+
+  ports:
+    - port: 80
+      targetPort: 3000
+
+  type: ClusterIP
