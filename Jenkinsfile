@@ -6,7 +6,7 @@ pipeline {
             steps {
                 sshagent(['k8s-control-plane-ssh']) {
                     sh '''
-                        ssh -o StrictHostKeyChecking=no ec2-user@16.112.118.126  "kubectl get pods -A"
+                        ssh -o StrictHostKeyChecking=no ec2-user@16.112.118.126  "docker --version"
                     '''
                 }
             }
