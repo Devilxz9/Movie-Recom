@@ -2,14 +2,19 @@ pipeline {
     agent any
 
     stages {
-        stage('Test Kubernetes Connection') {
+
+        stage('Pull Latest Code') {
             steps {
                 sshagent(['k8s-control-plane-ssh']) {
                     sh '''
-                        ssh -o StrictHostKeyChecking=no ec2-user@16.112.118.126  "docker --version"
+                        ssh -o StrictHostKeyChecking=no ec2-user@Y18.61.119.66 "
+                            cd ~/Movie-Recom &&
+                            git pull origin main
+                        "
                     '''
                 }
             }
         }
+
     }
 }
