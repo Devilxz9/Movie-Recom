@@ -40,7 +40,7 @@ export default function Home() {
                 Your Next Watch Awaits
               </div>
               <h1 className="text-5xl font-bold tracking-tighter sm:text-6xl lg:text-7xl bg-gradient-to-br from-white via-zinc-200 to-zinc-500 bg-clip-text text-transparent pb-2">
-                Find what to watch.<br /> Stop wasting the night.
+                Find what to watch.<br /> Stop wasting the night Brotherrrr.
               </h1>
               <p className="mt-6 max-w-xl text-base leading-relaxed text-zinc-400 sm:text-lg">
                 Movie recom helps you discover films that actually match your
