@@ -29,5 +29,24 @@ pipeline {
             }
         }
 
+        stage('Push Docker Image') {
+            steps {
+                sshagent(['k8s-control-plane-ssh']) {
+                    withCredentials([usernamePassword(
+                        credentialsId: 'dockerhub-credentials',
+                        usernameVariable: 'DOCKER_USER',
+                        passwordVariable: 'DOCKER_TOKEN'
+                    )]) {
+                        sh '''
+                            ssh -T -o StrictHostKeyChecking=no ec2-user@18.61.119.66 "
+                                echo \\$DOCKER_TOKEN | docker login -u \\$DOCKER_USER --password-stdin &&
+                                docker push devilxz9/devilxz9:movie-recom-${BUILD_NUMBER}
+                            "
+                        '''
+                    }
+                }
+            }
+        }
+
     }
 }
