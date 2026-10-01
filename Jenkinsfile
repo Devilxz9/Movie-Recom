@@ -52,7 +52,7 @@ pipeline {
                 sshagent(['k8s-control-plane-ssh']) {
                     sh '''
                         ssh -T -o StrictHostKeyChecking=no ec2-user@18.61.119.66 "
-                            kubectl set image deployment/movierecom \
+                            kubectl set image deployment/movierecom-deployment \
                             movierecom=devilxz9/devilxz9:movie-recom-${BUILD_NUMBER}
                         "
                     '''
