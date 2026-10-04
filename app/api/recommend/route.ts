@@ -73,7 +73,7 @@ export async function POST(req: Request) {
       .join(" ")
     const key = `movies:${session.user.id}:${query}:page-${seen.length}`
 
-    // CHECH CACHE FIRST
+    // CHECk CACHE FIRST
     const cached = await redis.get(key);
     if (cached) {
       console.log("cahche hit")
