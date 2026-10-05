@@ -6,7 +6,6 @@ pipeline {
     }
 
     stages {
-
         stage('Pull Latest Code') {
             steps {
                 sshagent(['k8s-control-plane-ssh']) {
@@ -55,18 +54,13 @@ pipeline {
             steps {
                 sshagent(['k8s-control-plane-ssh']) {
                     sh '''
-<<<<<<< HEAD
-                        ssh -T -o StrictHostKeyChecking=no ec2-user@18.61.119.66 "
-=======
-                        ssh -T -o StrictHostKeyChecking=no ec2-user@${CONTROL_PLANE_IP} "
->>>>>>> a369ba3 (jenkins changes)
-                            kubectl set image deployment/movierecom-deployment \
-                            movierecom=devilxz9/devilxz9:movie-recom-${BUILD_NUMBER}
-                        "
-                    '''
+                    ssh -T -o StrictHostKeyChecking=no ec2-user@${CONTROL_PLANE_IP} "
+                    kubectl set image deployment/movierecom-deployment \
+                    movierecom=devilxz9/devilxz9:movie-recom-${BUILD_NUMBER}
+                    "
+                '''
                 }
             }
         }
-
     }
 }
