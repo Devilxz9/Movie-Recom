@@ -6,7 +6,16 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "../api/auth/[...nextauth]/route"
 import { prisma } from "@/lib/prisma"
 import { redirect } from "next/navigation"
+import Image from "next/image"
 import DeleteReaction from "../components/DeleteReactionButton"
+
+type Reaction = {
+  id: string
+  title: string
+  image: string | null
+  type: string
+  reaction: string
+}
 
 export default async function ReactionsPage() {
   const session = await getServerSession(authOptions)
@@ -19,8 +28,8 @@ export default async function ReactionsPage() {
     where: { userId: session.user.id }
   })
 
-  const liked = reactions.filter((m:any) => m.reaction === "like")
-  const disliked = reactions.filter((m:any) => m.reaction === "dislike")
+  const liked = reactions.filter((m: Reaction) => m.reaction === "like")
+  const disliked = reactions.filter((m: Reaction) => m.reaction === "dislike")
 
   return (
     <main className="min-h-screen overflow-hidden bg-black text-white">
@@ -80,7 +89,7 @@ export default async function ReactionsPage() {
                 </div>
               ) : (
                 <div className="grid gap-4 md:grid-cols-3 xl:grid-cols-4">
-                  {liked.map((movie:any) => (
+                  {liked.map((movie: Reaction) => (
                     <MovieCard key={movie.id} movie={movie} />
                   ))}
                 </div>
@@ -108,7 +117,7 @@ export default async function ReactionsPage() {
                 </div>
               ) : (
                 <div className="grid gap-4 md:grid-cols-3 xl:grid-cols-4">
-                  {disliked.map((movie:any) => (
+                  {disliked.map((movie: Reaction) => (
                     <MovieCard key={movie.id} movie={movie} />
                   ))}
                 </div>
@@ -122,16 +131,18 @@ export default async function ReactionsPage() {
   )
 }
 
-function MovieCard({ movie }: { movie: any }) {
+function MovieCard({ movie }: { movie: Reaction }) {
   return (
     <div className="group overflow-hidden rounded-[1.75rem] border border-white/10 bg-[#0b0b0f] shadow-[0_24px_70px_rgba(0,0,0,0.42)] transition duration-300 hover:-translate-y-1 hover:border-fuchsia-400/25 hover:shadow-[0_30px_80px_rgba(20,20,30,0.55)]">
       <div className="border-b border-white/8 bg-gradient-to-br from-zinc-900 via-[#15131c] to-fuchsia-950/30 p-4">
         <div className="flex h-36 items-center justify-center overflow-hidden rounded-[1.35rem] bg-[linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.02))] ring-1 ring-white/10 sm:h-40">
-          <div className="flex h-full w-full items-center justify-center bg-[radial-gradient(circle_at_top,_rgba(192,38,211,0.12),_transparent_62%)] p-3">
+          <div className="relative flex h-full w-full items-center justify-center bg-[radial-gradient(circle_at_top,_rgba(192,38,211,0.12),_transparent_62%)] p-3">
             {movie.image ? (
-              <img
+              <Image
                 src={movie.image}
                 alt={movie.title}
+                fill
+                sizes="(max-width: 768px) 100vw, 25vw"
                 className="h-full w-full rounded-[1rem] object-contain object-center transition duration-300 group-hover:scale-[1.02]"
               />
             ) : (

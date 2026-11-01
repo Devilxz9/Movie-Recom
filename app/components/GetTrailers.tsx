@@ -1,56 +1,52 @@
 "use client"
 
-import React from 'react'
-import { useState } from 'react'
+import { useState } from "react"
 
-export default function GetTrailer({tmdbId,type}:{tmdbId:number, type: "movie" | "tv" }) {
-    const [trailerUrl, settrailerUrl] = useState("")
-    const [loading, setloading] = useState(false)
+export default function GetTrailer({ tmdbId, type }: { tmdbId?: number; type: "movie" | "tv" }) {
+    const [trailerUrl, setTrailerUrl] = useState("")
+    const [loading, setLoading] = useState(false)
+    const [error, setError] = useState(false)
 
-    const getTrailer = async() => {
+    const getTrailer = async () => {
+        if (!tmdbId) return
         try {
-            setloading(true)
-            const res = await fetch(`api/trailer?id=${tmdbId}&type=${type}`) //send id
+            setLoading(true)
+            setError(false)
+            const res = await fetch(`/api/trailer?id=${tmdbId}&type=${type}`)
             const data = await res.json()
-
-            //convert key we recived from res to youtube embaded link
-            settrailerUrl(`https://www.youtube.com/embed/${data.key}`)
-            setloading(false)
-
-        } catch (error) {
-            console.log("frontend trailer fetching error", error)
+            if (!res.ok || !data.key) {
+                setError(true)
+                return
+            }
+            setTrailerUrl(`https://www.youtube.com/embed/${data.key}?autoplay=1`)
+        } catch {
+            setError(true)
+        } finally {
+            setLoading(false)
         }
     }
 
-     return (
-    <div className="mt-2">
-
-  
-      {loading === true ? 
-      
-      <button
-        className="inline-flex h-11 items-center justify-center rounded-2xl border border-fuchsia-400/30 bg-gradient-to-r from-fuchsia-500 via-purple-500 to-fuchsia-400 px-5 text-sm font-semibold capitalize text-white shadow-[0_18px_45px_rgba(168,85,247,0.28)] transition duration-300 hover:-translate-y-0.5 hover:from-fuchsia-400 hover:via-purple-400 hover:to-fuchsia-300 hover:shadow-[0_24px_55px_rgba(168,85,247,0.36)] disabled:cursor-not-allowed disabled:opacity-70"
-      >
-        loading
-      </button>:
-      <button
-        onClick={getTrailer}
-        className="inline-flex h-11 items-center justify-center rounded-2xl border border-fuchsia-400/30 bg-gradient-to-r from-fuchsia-500 via-purple-500 to-fuchsia-400 px-5 text-sm font-semibold capitalize text-white shadow-[0_18px_45px_rgba(168,85,247,0.28)] transition duration-300 hover:-translate-y-0.5 hover:from-fuchsia-400 hover:via-purple-400 hover:to-fuchsia-300 hover:shadow-[0_24px_55px_rgba(168,85,247,0.36)] disabled:cursor-not-allowed disabled:opacity-70"
-      >
-        Watch Trailer
-      </button>}
-
-      {/* 🎥 VIDEO */}
-      {trailerUrl && (
-        <iframe
-          className="mt-3"
-          width="100%"
-          height="250"
-          src={trailerUrl}
-          allowFullScreen
-        />
-      )}
-
-    </div>
-  )
+    return (
+        <>
+            <button
+                type="button"
+                onClick={getTrailer}
+                disabled={loading || !tmdbId}
+                className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-full border border-[#ded4e7] bg-[#faf8ff] px-4 py-2.5 text-xs font-bold text-[#6d4bd7] transition hover:border-[#bda3fa] hover:bg-[#f0eafa] disabled:cursor-not-allowed disabled:opacity-50"
+            >
+                <span aria-hidden="true">▶</span>{loading ? "Finding trailer..." : "Watch Trailer"}
+            </button>
+            {error && <p className="mt-2 text-center text-xs text-[#c64e42]">Trailer unavailable for this title.</p>}
+            {trailerUrl && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[#171321]/80 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-label="Movie trailer">
+                    <div className="relative w-full max-w-3xl overflow-hidden rounded-[1.25rem] bg-[#171321] p-2 shadow-2xl">
+                        <button type="button" onClick={() => setTrailerUrl("")} className="absolute right-4 top-4 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-[#171321] transition hover:bg-white" aria-label="Close trailer">×</button>
+                        <div className="aspect-video overflow-hidden rounded-[.85rem]">
+                            <iframe className="h-full w-full" src={trailerUrl} title="Movie trailer" allow="autoplay; encrypted-media; picture-in-picture" allowFullScreen />
+                        </div>
+                    </div>
+                </div>
+            )}
+        </>
+    )
 }

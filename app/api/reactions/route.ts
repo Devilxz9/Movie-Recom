@@ -33,8 +33,6 @@ export async function POST(req:NextRequest){
         }
     })
 
-    console.log("like dislike api hit")
-
     return Response.json(result)
 
 }

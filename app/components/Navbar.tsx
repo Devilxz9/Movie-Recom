@@ -9,21 +9,18 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <nav className=" top-0 z-50 w-full">
+        <nav className="relative z-50 -mb-20 w-full">
 
       {/* ── DESKTOP / TABLET NAV ── */}
-      <div className="mx-auto flex max-w-7xl items-center justify-between border-b border-white/6 bg-[#070309]/85 px-6 py-4 backdrop-blur-xl sm:mt-4 sm:rounded-2xl sm:border sm:border-fuchsia-400/15 sm:px-6 sm:shadow-[0_0_60px_rgba(139,58,220,0.15)]">
+      <div className="flex w-full items-center justify-between border-b border-white/10 bg-[#171321]/75 px-5 py-4 text-white backdrop-blur-xl sm:px-8 sm:shadow-[0_12px_40px_rgba(23,19,33,0.22)] lg:px-12">
 
         {/* Logo */}
-        <Link href="/" className="group flex items-center gap-2.5">
-          {/* <div className="flex h-7 w-7 items-center justify-center rounded-md bg-fuchsia-500 shadow-[0_0_14px_rgba(217,70,239,0.5)] transition group-hover:bg-fuchsia-400">
-            <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
-              <path d="M7 1L9.5 5.5H13L9.5 8.5L11 13L7 10.5L3 13L4.5 8.5L1 5.5H4.5L7 1Z" fill="white" />
-            </svg>
-          </div> */}
-          <span className="text-md font-bold uppercase tracking-[0.22em] text-purple-300/90 transition group-hover:text-white">
-            MovieRecom
+        <Link href="/" className="group flex items-end gap-3">
+          <span className="relative text-xl font-bold tracking-[-0.06em] text-white transition group-hover:text-[#79aaff] sm:text-2xl">
+            Movie<span className="text-[#bda3fa]">Recom</span>
+          <span className="absolute -bottom-1 left-0 h-px w-0 bg-[#4f8dff] transition-all duration-300 group-hover:w-full" />
           </span>
+          <span className="hidden pb-0.5 text-[9px] font-semibold uppercase tracking-[0.2em] text-[#a99dae] sm:block">Curated cinema</span>
         </Link>
 
         {/* Desktop links + actions */}
@@ -32,7 +29,7 @@ export default function Navbar() {
           {/* Nav link: Recommendations */}
           <Link
             href="/recommend"
-            className="rounded-full px-4 py-2 text-sm font-medium text-zinc-400 transition hover:bg-white/6 hover:text-zinc-100"
+            className="rounded-full px-4 py-2.5 text-[14px] font-medium text-[#c8bdce] transition hover:bg-white/10 hover:text-white"
           >
             Recommendations
           </Link>
@@ -40,20 +37,20 @@ export default function Navbar() {
           {/* Nav link: My Recoms */}
           <Link
             href={session ? "/myrecoms" : "/login"}
-            className="rounded-full px-4 py-2 text-sm font-medium text-zinc-400 transition hover:bg-white/6 hover:text-zinc-100"
+            className="rounded-full px-4 py-2.5 text-[14px] font-medium text-[#c8bdce] transition hover:bg-white/10 hover:text-white"
           >
             My Recoms
           </Link>
 
           {/* Divider */}
-          <div className="mx-1 h-4 w-px bg-white/10" />
+          <div className="mx-1 h-4 w-px bg-white/15" />
 
           {/* Auth button */}
           {status === "unauthenticated" ? (
             <button
               type="button"
               onClick={() => signIn("google", { callbackUrl: "/" })}
-              className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-fuchsia-500 px-5 py-2 text-sm font-semibold text-white shadow-[0_0_24px_rgba(217,70,239,0.3)] transition hover:bg-fuchsia-400 hover:shadow-[0_0_32px_rgba(217,70,239,0.45)]"
+              className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-[#7c3aed] px-5 py-2.5 text-[15px] font-semibold text-white shadow-[0_8px_20px_rgba(124,58,237,0.25)] transition hover:bg-[#9b6bff]"
             >
               {/* Google icon */}
               <svg className="h-3.5 w-3.5" viewBox="0 0 18 18" fill="none">
@@ -68,7 +65,7 @@ export default function Navbar() {
             <button
               type="button"
               onClick={() => signOut({ callbackUrl: "/" })}
-              className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/4 px-5 py-2 text-sm font-medium text-zinc-300 transition hover:border-red-400/25 hover:bg-red-500/10 hover:text-red-400"
+              className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-5 py-2.5 text-[15px] font-medium text-[#c8bdce] transition hover:border-[#ff8c7f]/50 hover:bg-[#ff6b5b]/10 hover:text-[#ffb0a7]"
             >
               <svg className="h-3.5 w-3.5" viewBox="0 0 14 14" fill="none">
                 <path d="M5 7h8M9 4l3 3-3 3M5 2H2a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
@@ -81,7 +78,7 @@ export default function Navbar() {
         {/* Mobile: hamburger */}
         <button
           type="button"
-          className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/4 text-zinc-300 transition hover:bg-white/8 sm:hidden"
+          className="flex h-9 w-9 items-center justify-center rounded-full border border-white/15 bg-white/5 text-[#c8bdce] transition hover:bg-white/10 sm:hidden"
           onClick={() => setMenuOpen((v) => !v)}
           aria-label="Toggle menu"
         >
@@ -99,7 +96,7 @@ export default function Navbar() {
 
       {/* ── MOBILE DROPDOWN ── */}
       <div
-        className={`mx-0 overflow-hidden border-b border-white/6 bg-[#070309]/95 backdrop-blur-xl transition-all duration-300 ease-in-out sm:hidden ${
+        className={`mx-0 overflow-hidden border-b border-white/10 bg-[#171321]/95 backdrop-blur-xl transition-all duration-300 ease-in-out sm:hidden ${
           menuOpen ? "max-h-72 opacity-100" : "max-h-0 opacity-0"
         }`}
       >
@@ -107,7 +104,7 @@ export default function Navbar() {
           <Link
             href="/recommend"
             onClick={() => setMenuOpen(false)}
-            className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-zinc-300 transition hover:bg-white/6 hover:text-white"
+            className="flex items-center gap-3 rounded-xl px-4 py-3 text-[15px] font-medium text-[#c8bdce] transition hover:bg-white/10 hover:text-white"
           >
             <svg className="h-4 w-4 text-fuchsia-400" viewBox="0 0 16 16" fill="none">
               <path d="M8 1l2 4.5H15l-4 3 1.5 4.5L8 10.5 3.5 13 5 8.5l-4-3H6L8 1z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round"/>
@@ -118,7 +115,7 @@ export default function Navbar() {
           <Link
             href={session ? "/myrecoms" : "/login"}
             onClick={() => setMenuOpen(false)}
-            className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-zinc-300 transition hover:bg-white/6 hover:text-white"
+            className="flex items-center gap-3 rounded-xl px-4 py-3 text-[15px] font-medium text-[#c8bdce] transition hover:bg-white/10 hover:text-white"
           >
             <svg className="h-4 w-4 text-fuchsia-400" viewBox="0 0 16 16" fill="none">
               <path d="M8 1a3 3 0 1 1 0 6A3 3 0 0 1 8 1zM2 14a6 6 0 0 1 12 0" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>

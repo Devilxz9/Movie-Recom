@@ -8,7 +8,7 @@ export async function DELETE(req:Request){
 
 const body = await req.json()
 
-const RemoveMovie = await prisma.savedMovie.delete({
+await prisma.savedMovie.delete({
 
     where:{
        id: body.id,

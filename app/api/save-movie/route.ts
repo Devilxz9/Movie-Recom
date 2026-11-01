@@ -13,8 +13,6 @@ export async function POST(req:Request){
     }
 
     const body = await req.json();
-    console.log(Object.keys(prisma));
-
     const existing = await prisma.savedMovie.findFirst({
         where:{
             userId:session.user.id,

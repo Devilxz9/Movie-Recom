@@ -2,15 +2,21 @@
 
 import { useState } from "react"
 
+type MoviePayload = {
+    title: string
+    image?: string | null
+    type: string
+    tmdbId?: number
+}
 
-export default function SaveButton({ movie }: any) {
+export default function SaveButton({ movie }: { movie: MoviePayload }) {
     const [loading, setLoading] = useState(false);
     const [isSaved, setisSaved] = useState(false)
 
     const handleSave = async () => {
         try {
             setLoading(true)
-            const res = await fetch("/api/save-movie", {
+            await fetch("/api/save-movie", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -33,20 +39,17 @@ export default function SaveButton({ movie }: any) {
         }
     };
 
-    return (<>
-        {isSaved === true ? <button
-
-            className="inline-flex h-11 items-center justify-center rounded-2xl border border-fuchsia-400/30 bg-gradient-to-r from-fuchsia-500 via-purple-500 to-fuchsia-400 px-5 text-sm font-semibold capitalize text-white shadow-[0_18px_45px_rgba(168,85,247,0.28)] transition duration-300 hover:-translate-y-0.5 hover:from-fuchsia-400 hover:via-purple-400 hover:to-fuchsia-300 hover:shadow-[0_24px_55px_rgba(168,85,247,0.36)] disabled:cursor-not-allowed disabled:opacity-70"
+    return (
+        <button
+            onClick={handleSave}
+            disabled={loading || isSaved}
+            aria-label={isSaved ? "Saved" : "Save movie"}
+            className={`inline-flex h-10 items-center gap-2 rounded-full border px-4 text-xs font-bold transition duration-300 hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-75 ${isSaved ? "border-[#bda3fa] bg-[#f0eafa] text-[#6d4bd7]" : "border-[#4f8dff] bg-[#4f8dff] text-[#10182c] hover:bg-[#79aaff]"}`}
         >
-            "Saved"
+            <svg className={`h-3.5 w-3.5 transition-transform ${isSaved ? "scale-110" : ""}`} viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="M4 2.25A1.25 1.25 0 0 1 5.25 1h5.5A1.25 1.25 0 0 1 12 2.25v12l-4-2.5-4 2.5v-12Z" stroke="currentColor" strokeWidth="1.25" />
+            </svg>
+            {loading ? "Saving..." : isSaved ? "Saved" : "Save"}
         </button>
-            :
-            <button
-                onClick={handleSave}
-                className="inline-flex h-11 items-center justify-center rounded-2xl border border-fuchsia-400/30 bg-gradient-to-r from-fuchsia-500 via-purple-500 to-fuchsia-400 px-5 text-sm font-semibold capitalize text-white shadow-[0_18px_45px_rgba(168,85,247,0.28)] transition duration-300 hover:-translate-y-0.5 hover:from-fuchsia-400 hover:via-purple-400 hover:to-fuchsia-300 hover:shadow-[0_24px_55px_rgba(168,85,247,0.36)] disabled:cursor-not-allowed disabled:opacity-70"
-            >
-                {loading ? "saving..." : "save"}
-            </button>}
-    </>
     )
 }

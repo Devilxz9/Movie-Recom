@@ -1,5 +1,25 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Awwwards MCP
+
+This project includes a workspace-scoped MCP configuration for
+[awwwards-mcp](https://github.com/INSANE0777/Awwwards-mcp). In VS Code, enable
+the `awwwards` server when prompted. VS Code will download the pinned
+`awwwards-mcp@1.15.1` package through `npx` on first use.
+
+The server provides design-inspiration search, site details, screenshots, and
+design-brief tools. It runs outside the Next.js application and does not add
+runtime dependencies to the web app.
+
+## Genjutsu
+
+The project also includes a project-scoped Genjutsu skill for art direction,
+motion, and interface polish. Its canonical visual tokens and motion rules live
+in [`MASTER.md`](./MASTER.md). Use the `paint` workflow for a full visual
+identity or homepage redesign, and `cast` for a focused animation or interaction
+refinement. The skill is locked in `skills-lock.json`; it is not a runtime
+dependency of the Next.js app.
+
 ## Getting Started
 
 First, run the development server:

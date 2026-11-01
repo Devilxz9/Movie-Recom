@@ -21,13 +21,14 @@ export async function GET(req: Request) {
 
     // 👉 5. Call TMDb API to get videos
     const res = await fetch(
-      `https://api.themoviedb.org/3/${type}/${id}/videos?api_key=${process.env.TMDB_API_KEY}`
+      `https://api.themoviedb.org/3/${type}/${id}/videos?api_key=${process.env.TMDB_API_KEY}`,
+      { next: { revalidate: 3600 } }
     )
 
     const data = await res.json()
 
     // 👉 6. Find trailer from response
-    const trailer = data.results.find((vid: any) => {
+    const trailer = data.results.find((vid: { type?: string; site?: string; key?: string }) => {
       return vid.type === "Trailer" && vid.site === "YouTube"
     })
 

@@ -1,104 +1,143 @@
-
 "use client"
 
-import { useState, useEffect } from "react"
+import { FormEvent, memo, useEffect, useState } from "react"
+import Image from "next/image"
+import { motion } from "framer-motion"
 import SaveButton from "../components/SaveButton"
-import Head from "next/head"
 import GetTrailer from "../components/GetTrailers"
 import Likebutton from "../components/LikeButton"
 import DisLikebutton from "../components/DislikeButton"
 
+const loadingMessages = [
+    "Understanding your movie preferences...",
+    "Exploring films that match your description...",
+    "Looking beyond the obvious choices...",
+    "Finding stories worth your time...",
+]
+
+type Recommendation = {
+    title: string
+    description: string
+    Released?: string
+    image?: string | null
+    tmdbId?: number
+    runtime?: string
+    genre?: string
+    rating?: string | number
+}
+
+const MovieCard = memo(function MovieCard({ item, type, index }: { item: Recommendation; type: "movie" | "tv"; index: number }) {
+    return (
+        <motion.article
+            initial={{ opacity: 0, y: 22 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.06, duration: 0.45 }}
+            className="group flex h-full flex-col overflow-hidden rounded-[1.5rem] border border-[#ded4e7] bg-white shadow-[0_14px_35px_rgba(54,36,90,.08)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_22px_48px_rgba(54,36,90,.14)]"
+        >
+            <div className="relative aspect-[2/3] overflow-hidden bg-[#e8dff0]">
+                {item.image ? (
+                    <Image src={item.image} alt={`${item.title} poster`} fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw" className="object-cover transition duration-700 ease-out group-hover:scale-105" />
+                ) : (
+                    <div className="flex h-full items-center justify-center px-6 text-center text-sm text-[#766b7d]">Poster unavailable</div>
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-[#171321]/45 via-transparent to-transparent opacity-70" />
+            </div>
+
+            <div className="flex flex-1 flex-col p-5">
+                <div className="flex items-start justify-between gap-3">
+                    <h3 className="min-w-0 text-xl font-semibold leading-tight tracking-[-0.04em] text-[#171321]">{item.title}</h3>
+                    <span className="shrink-0 rounded-full bg-[#f0eafa] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-[#6d4bd7]">
+                        {type === "tv" ? "Series" : "Movie"}
+                    </span>
+                </div>
+
+                <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs font-medium text-[#766b7d]">
+                    <span>{item.Released || "Release year unavailable"}</span>
+                    {item.runtime && <><span className="text-[#c0b5ca]">·</span><span>{item.runtime}</span></>}
+                    {item.genre && <><span className="text-[#c0b5ca]">·</span><span>{item.genre}</span></>}
+                    {item.rating && <span className="ml-auto font-bold text-[#171321]">★ {item.rating}</span>}
+                </div>
+
+                <p className="mt-4 line-clamp-3 min-h-[4.5rem] text-sm leading-6 text-[#766b7d]">{item.description}</p>
+
+                <div className="mt-auto pt-5">
+                    <div className="flex items-center gap-2">
+                        <SaveButton movie={{ ...item, type }} />
+                        <div className="ml-auto flex items-center gap-1">
+                            <Likebutton movie={{ ...item, type }} />
+                            <DisLikebutton movie={{ ...item, type }} />
+                        </div>
+                    </div>
+                    <GetTrailer tmdbId={item.tmdbId} type={type} />
+                </div>
+            </div>
+        </motion.article>
+    )
+})
 
 export default function RecommandPage() {
     const [input, setInput] = useState("")
-
     const [loading, setLoading] = useState(false)
+    const [loadingMessage, setLoadingMessage] = useState(loadingMessages[0])
+    const [movies, setMovies] = useState<Recommendation[]>([])
+    const [series, setSeries] = useState<Recommendation[]>([])
+    const [seen, setSeen] = useState<string[]>([])
+    const [loadingMore, setLoadingMore] = useState(false)
+    const [hasMore, setHasMore] = useState(false)
 
-
-    const [movies, setMovies] = useState<any[]>([])   // all movies shown so far
-    const [series, setSeries] = useState<any[]>([])   // all series shown so far
-    const [seen, setSeen] = useState<string[]>([])     // titles already shown
-    const [loadingMore, setLoadingMore] = useState(false) // for load more button
-    const [hasMore, setHasMore] = useState(false)      // show/hide load more button
     useEffect(() => {
         document.title = "Movie Recom - Recommendations"
-
-
+        const mood = new URLSearchParams(window.location.search).get("mood")
+        if (mood) setInput(mood)
     }, [])
 
+    useEffect(() => {
+        if (!loading) return
+        const timer = window.setInterval(() => {
+            setLoadingMessage((current) => loadingMessages[(loadingMessages.indexOf(current) + 1) % loadingMessages.length])
+        }, 1700)
+        return () => window.clearInterval(timer)
+    }, [loading])
 
-
-
-    const GetRecommendation = async () => {
-        if (!input) return
+    const getRecommendation = async (event?: FormEvent) => {
+        event?.preventDefault()
+        if (!input.trim()) return
         setLoading(true)
-
-        // RESET everything on new search
         setMovies([])
         setSeries([])
         setSeen([])
-
         try {
             const res = await fetch("/api/recommend", {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    preferences: input,
-                    seen: []  // first search, nothing seen yet
-                }),
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ preferences: input, seen: [] }),
             })
-
+            if (!res.ok) throw new Error("Unable to load recommendations")
             const result = await res.json()
-            // save results
             setMovies(result.movies || [])
             setSeries(result.series || [])
-
-
-
-            // save titles so next request can exclude them
-            const seenTitles = [
-                ...(result.movies || []).map((m: any) => m.title),
-                ...(result.series || []).map((s: any) => s.title),
-            ]
-            setSeen(seenTitles)
-            setHasMore(true)  // always show load more after first search
-
+            setSeen([...(result.movies || []), ...(result.series || [])].map((item: Recommendation) => item.title))
+            setHasMore(true)
         } catch (error) {
             console.log("res error on ai response on frontend", error)
         } finally {
             setLoading(false)
         }
-
     }
-    const LoadMore = async () => {
-        setLoadingMore(true)
 
+    const loadMore = async () => {
+        setLoadingMore(true)
         try {
             const res = await fetch("/api/recommend", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    preferences: input,
-                    seen: seen       // send already shown titles!
-                }),
+                body: JSON.stringify({ preferences: input, seen }),
             })
-
+            if (!res.ok) throw new Error("Unable to load more recommendations")
             const result = await res.json()
-
-            // APPEND to existing, don't replace
-            setMovies(prev => [...prev, ...(result.movies || [])])
-            setSeries(prev => [...prev, ...(result.series || [])])
-
-            // update seen list with new titles too
-            const newSeen = [
-                ...seen,
-                ...(result.movies || []).map((m: any) => m.title),
-                ...(result.series || []).map((s: any) => s.title),
-            ]
-            setSeen(newSeen)
-
+            setMovies((prev) => [...prev, ...(result.movies || [])])
+            setSeries((prev) => [...prev, ...(result.series || [])])
+            setSeen((prev) => [...prev, ...(result.movies || []), ...(result.series || [])].map((item: Recommendation) => item.title))
         } catch (error) {
             console.log("error", error)
         } finally {
@@ -106,261 +145,80 @@ export default function RecommandPage() {
         }
     }
 
+    const hasResults = movies.length > 0 || series.length > 0
+
     return (
+        <main className="min-h-screen overflow-hidden bg-[#f3efff] text-[#171321]">
+            <div className="pointer-events-none absolute inset-x-0 top-0 h-[34rem] bg-[radial-gradient(circle_at_top,_rgba(189,163,250,.32),_transparent_62%)]" />
+            <section className="relative mx-auto max-w-7xl px-5 pb-16 pt-12 sm:px-8 sm:pt-16 lg:px-12">
+                <div className="mx-auto max-w-3xl text-center">
+                    <p className="flex items-center justify-center gap-3 text-xs font-bold uppercase tracking-[0.28em] text-[#6d4bd7]">
+                        <span className="h-px w-8 bg-[#ff6b5b]" /> Personalised film discovery <span className="h-px w-8 bg-[#ff6b5b]" />
+                    </p>
+                    <h1 className="mt-5 text-5xl font-semibold leading-[0.95] tracking-[-0.075em] sm:text-7xl">Tell us what you&apos;re in the mood for.</h1>
+                    <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-[#766b7d]">
+                        Describe the kind of film you&apos;re looking for. A genre, a feeling, a storyline, or even a movie you recently enjoyed. We&apos;ll find films worth your time.
+                    </p>
+                </div>
 
-        <main className="min-h-screen overflow-hidden bg-black text-white">
-            <div className="relative isolate min-h-screen">
-                <div className="absolute inset-x-0 top-0 -z-10 h-80 bg-[radial-gradient(circle_at_top,_rgba(192,38,211,0.24),_transparent_55%)]" />
-                <div className="absolute left-1/2 top-20 -z-10 h-72 w-72 -translate-x-1/2 rounded-full bg-fuchsia-700/20 blur-3xl" />
-                <div className="absolute right-8 top-44 -z-10 h-72 w-72 rounded-full bg-purple-700/10 blur-3xl" />
-                <div className="absolute left-8 top-56 -z-10 h-64 w-64 rounded-full bg-fuchsia-500/10 blur-3xl" />
-
-                <section className="mx-auto flex w-full max-w-7xl flex-col px-4 pb-16 pt-20 sm:px-6 lg:px-8 lg:pt-24">
-                    <div className="mx-auto w-full max-w-4xl">
-                        <div className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-4 shadow-[0_0_90px_rgba(168,85,247,0.16)] backdrop-blur-2xl sm:p-6">
-                            <div className="rounded-[1.75rem] border border-fuchsia-400/15 bg-gradient-to-b from-fuchsia-500/10 via-black/55 to-black/80 p-6 sm:p-8">
-                                <div className="mx-auto max-w-2xl text-center">
-                                    <div className="inline-flex items-center rounded-full border border-fuchsia-400/30 bg-fuchsia-500/10 px-4 py-2 text-xs uppercase tracking-[0.28em] text-fuchsia-100">
-                                        Recommendation Studio
-                                    </div>
-
-                                    <h1 className="mt-5 text-3xl font-semibold tracking-tight text-white sm:text-4xl lg:text-5xl">
-                                        Tell us what you want to watch next.
-                                    </h1>
-
-                                    <p className="mt-4 text-sm leading-7 text-zinc-300 sm:text-base">
-                                        Enter a vibe, genre, or watch preference and get a refined lineup below in a cinematic card layout.
-                                    </p>
-                                </div>
-
-                                <div className="mx-auto mt-8 max-w-3xl">
-                                    <div className="flex flex-col gap-3 sm:flex-row">
-                                        <input
-                                            type="text"
-                                            placeholder="Try: emotional sci-fi, intense thrillers, slow-burn mystery"
-                                            value={input}
-                                            onChange={(e) => setInput(e.target.value)}
-                                            className="h-12   flex-1 rounded-2xl border border-white/10 bg-black/50 px-5 py-10 sm:py-7 text-2sm text-white outline-none transition placeholder:text-zinc-500 focus:border-fuchsia-400/60 focus:bg-black/65"
-                                        />
-
-                                        <button
-                                            onClick={GetRecommendation}
-                                            className="h-14 rounded-2xl bg-gradient-to-r from-fuchsia-500 via-purple-500 to-fuchsia-400 px-6 text-sm font-semibold text-white shadow-[0_18px_45px_rgba(168,85,247,0.35)] transition hover:scale-[1.01] hover:from-fuchsia-400 hover:to-purple-400 disabled:cursor-not-allowed disabled:opacity-60"
-                                            disabled={loading || !input}
-                                        >
-                                            {loading ? "Curating..." : "Get Recommendations"}
-                                        </button>
-                                    </div>
-
-                                    {loading && (
-                                        <div className="mt-4 rounded-2xl border border-fuchsia-400/20 bg-fuchsia-500/10 px-4 py-3 text-center text-sm text-fuchsia-100">
-                                            Building your personalized lineup...
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
+                <form onSubmit={getRecommendation} className="mx-auto mt-10 max-w-4xl rounded-[1.75rem] border border-[#d8cce4] bg-white p-3 shadow-[0_18px_50px_rgba(54,36,90,.1)]">
+                    <textarea
+                        value={input}
+                        onChange={(event) => setInput(event.target.value)}
+                        rows={3}
+                        placeholder="e.g. I want a mind-bending thriller with unexpected twists, like Shutter Island..."
+                        className="w-full resize-none rounded-[1.25rem] bg-[#faf8ff] px-5 py-4 text-base leading-7 text-[#171321] outline-none placeholder:text-[#a99dae] focus:ring-2 focus:ring-[#bda3fa]"
+                    />
+                    <div className="flex flex-col items-start justify-between gap-4 px-2 pb-1 pt-3 sm:flex-row sm:items-center">
+                        <p className="text-xs font-medium text-[#a99dae]">Be as specific or as spontaneous as you like.</p>
+                        <button type="submit" disabled={loading || !input.trim()} className="inline-flex items-center gap-3 rounded-full bg-[#4f8dff] px-6 py-3.5 text-sm font-bold text-[#10182c] transition hover:-translate-y-0.5 hover:bg-[#79aaff] disabled:cursor-not-allowed disabled:opacity-50">
+                            Find My Movies <span className="text-lg">→</span>
+                        </button>
                     </div>
+                    {loading && (
+                        <motion.p key={loadingMessage} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} className="px-2 pb-2 text-sm font-medium text-[#6d4bd7]">
+                            {loadingMessage}
+                        </motion.p>
+                    )}
+                </form>
 
-                    <div className="mt-12 space-y-10">
-                        {movies.length === 0 && series.length === 0 && !loading && (
-                            <div className="rounded-[2rem] border border-dashed border-white/10 bg-white/[0.03] p-10 text-center backdrop-blur-xl">
-                                <p className="text-lg font-medium text-white">
-                                    Your recommendations will appear below the search panel.
-                                </p>
-                                <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-zinc-400">
-                                    Cards are already structured in a wide cinematic format with reserved image space so you can drop in Netflix-style artwork later.
-                                </p>
+                {!hasResults && !loading && (
+                    <div className="mx-auto mt-14 max-w-xl text-center">
+                        <p className="text-2xl font-semibold tracking-[-0.04em]">Your next favourite is somewhere out there.</p>
+                        <p className="mt-3 text-sm leading-6 text-[#766b7d]">Start with a feeling, a favourite director, or the kind of story you want to get lost in.</p>
+                    </div>
+                )}
+
+                {hasResults && (
+                    <div className="mt-16 space-y-14">
+                        {series.length > 0 && (
+                            <section>
+                                <div className="mb-6 flex items-end justify-between gap-4">
+                                    <div><p className="text-xs font-bold uppercase tracking-[0.24em] text-[#6d4bd7]">Curated picks</p><h2 className="mt-2 text-4xl font-semibold tracking-[-0.06em]">Series</h2></div>
+                                    <span className="text-sm font-medium text-[#a99dae]">{series.length} picks</span>
+                                </div>
+                                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">{series.map((item, index) => <MovieCard key={`${item.title}-${index}`} item={item} type="tv" index={index} />)}</div>
+                            </section>
+                        )}
+                        {movies.length > 0 && (
+                            <section>
+                                <div className="mb-6 flex items-end justify-between gap-4">
+                                    <div><p className="text-xs font-bold uppercase tracking-[0.24em] text-[#6d4bd7]">Curated picks</p><h2 className="mt-2 text-4xl font-semibold tracking-[-0.06em]">Movies</h2></div>
+                                    <span className="text-sm font-medium text-[#a99dae]">{movies.length} picks</span>
+                                </div>
+                                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">{movies.map((item, index) => <MovieCard key={`${item.title}-${index}`} item={item} type="movie" index={index} />)}</div>
+                            </section>
+                        )}
+                        {hasMore && (
+                            <div className="flex justify-center">
+                                <button onClick={loadMore} disabled={loadingMore} className="rounded-full border border-[#cfc1dc] bg-white px-6 py-3 text-sm font-bold text-[#6d4bd7] transition hover:border-[#6d4bd7] disabled:opacity-50">
+                                    {loadingMore ? "Finding more..." : "Load more films →"}
+                                </button>
                             </div>
                         )}
-
-                        {(movies.length > 0 || series.length > 0) && (
-                            <div className="space-y-12">
-                                <div>
-                                    <div>
-                                        <div className="mb-5 flex items-center justify-between gap-4">
-                                            <div>
-                                                <p className="text-xs uppercase tracking-[0.32em] text-fuchsia-300/80">
-                                                    Curated Picks
-                                                </p>
-                                                <h2 className="mt-2 text-2xl font-semibold text-white">
-                                                    Series
-                                                </h2>
-                                            </div>
-                                            <div className="rounded-full border border-fuchsia-300/20 bg-fuchsia-500/10 px-3 py-1 text-sm text-fuchsia-100">
-                                                {series?.length || 0} picks
-                                            </div>
-                                        </div>
-
-                                        <div className="grid gap-7 md:grid-cols-2 xl:grid-cols-3">
-                                            {series.map((show: any, index: number) => (
-                                                <div
-                                                    key={index}
-                                                    className="group overflow-hidden rounded-[1.75rem] border border-white/10 bg-[#09090c] shadow-[0_24px_70px_rgba(0,0,0,0.42)] transition duration-300 hover:-translate-y-1 hover:border-fuchsia-400/25 hover:shadow-[0_30px_80px_rgba(20,20,30,0.55)]"
-                                                >
-                                                    <div className="border-b border-white/8 bg-gradient-to-br from-zinc-900 via-[#14111c] to-purple-950/30 p-4">
-                                                        <div className="flex h-64 items-center justify-center overflow-hidden rounded-[1.35rem] bg-[linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.02))] ring-1 ring-white/10 sm:h-72">
-                                                            <div className="flex h-full w-full items-center justify-center bg-[radial-gradient(circle_at_top,_rgba(168,85,247,0.14),_transparent_62%)] p-3">
-                                                                {show.image ? (
-                                                                    <img
-                                                                        src={show.image}
-                                                                        alt={show.title}
-                                                                        className="h-full w-full rounded-[1rem] object-contain object-center"
-                                                                    />
-                                                                ) : (
-                                                                    <div className="flex h-full w-full items-center justify-center rounded-[1rem] border border-dashed border-white/10 bg-black/20 text-sm text-zinc-500">
-                                                                        No Image
-                                                                    </div>
-                                                                )}
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    <div className="space-y-4 bg-[linear-gradient(180deg,rgba(12,12,16,0.96),rgba(10,10,14,1))] p-6">
-                                                        <div className="flex items-start justify-between gap-3">
-                                                            <h3 className="text-lg font-semibold leading-7 text-white">
-                                                                {show.title}
-                                                            </h3>
-                                                            <div className="shrink-0 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] uppercase tracking-[0.18em] text-zinc-200">
-                                                                Series
-                                                            </div>
-                                                        </div>
-                                                        <p className="text-sm leading-7 text-zinc-300">
-                                                            {show.Released}
-                                                        </p>
-                                                        <p className="text-sm leading-7 text-zinc-300">
-                                                            {show.description}
-                                                        </p>
-                                                        <div className="flex justify-between">
-                                                            <span>
-
-
-                                                                <SaveButton movie={{ ...show, type: "tv" }} />
-                                                            </span>
-                                                            <span className="flex gap-3">
-
-                                                                <Likebutton movie={{ ...show, type: "tv" }} />
-                                                                <DisLikebutton movie={{ ...show, type: "tv" }} />
-                                                            </span>
-                                                        </div>
-                                                        <GetTrailer tmdbId={show.tmdbId} type="tv" />
-                                                    </div>
-                                                    
-                                                </div>
-                                                
-                                            ))}
-                                            
-                                        </div>
-                                    </div>
-                                      {/* ADD THIS 👇 */}
-                                {hasMore && (
-                                    <div className="flex justify-center mt-8">
-                                        <button
-                                            onClick={LoadMore}
-                                            disabled={loadingMore}
-                                            className="h-14 rounded-2xl bg-gradient-to-r from-fuchsia-500 via-purple-500 to-fuchsia-400 px-8 text-sm font-semibold text-white shadow-[0_18px_45px_rgba(168,85,247,0.35)] transition hover:scale-[1.01] disabled:opacity-60"
-                                        >
-                                            {loadingMore ? "Loading more..." : "Load More"}
-                                        </button>
-                                    </div>
-                                )}
-                                    <div className="mb-5 flex items-center justify-between gap-4">
-                                        <div>
-                                            {/* <p className="text-xs uppercase tracking-[0.32em] text-fuchsia-300/80">
-                                                Curated Picks
-                                            </p> */}
-                                            <h2 className="mt-2 py-5 text-2xl font-semibold text-white">
-                                                Movies
-                                            </h2>
-                                        </div>
-                                        <div className="rounded-full border border-fuchsia-300/20 bg-fuchsia-500/10 px-3 py-1 text-sm text-fuchsia-100">
-                                            {movies?.length || 0} picks
-                                        </div>
-                                    </div>
-
-                                    <div className="grid gap-7 md:grid-cols-2 xl:grid-cols-3">
-                                        {movies?.map((movie: any, index: number) => (
-                                            <div
-                                                key={index}
-                                                className="group overflow-hidden rounded-[1.75rem] border border-white/10 bg-[#0b0b0f] shadow-[0_24px_70px_rgba(0,0,0,0.42)] transition duration-300 hover:-translate-y-1 hover:border-fuchsia-400/25 hover:shadow-[0_30px_80px_rgba(20,20,30,0.55)]"
-                                            >
-                                                <div className="border-b border-white/8 bg-gradient-to-br from-zinc-900 via-[#15131c] to-fuchsia-950/30 p-4">
-                                                    <div className="flex h-64 items-center justify-center overflow-hidden rounded-[1.35rem] bg-[linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.02))] ring-1 ring-white/10 sm:h-72">
-                                                        <div className="flex h-full w-full items-center justify-center bg-[radial-gradient(circle_at_top,_rgba(192,38,211,0.12),_transparent_62%)] p-3">
-                                                            {movie.image ? (
-                                                                <img
-                                                                    src={movie.image}
-                                                                    alt={movie.title}
-                                                                    className="h-full w-full rounded-[1rem] object-contain object-center"
-                                                                />
-                                                            ) : (
-                                                                <div className="flex h-full w-full items-center justify-center rounded-[1rem] border border-dashed border-white/10 bg-black/20 text-sm text-zinc-500">
-                                                                    No Image
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <div className="space-y-4 bg-[linear-gradient(180deg,rgba(12,12,16,0.96),rgba(10,10,14,1))] p-6 ">
-                                                    <div className="flex items-start justify-between gap-3">
-                                                        <h3 className="text-lg font-semibold leading-7 text-white">
-                                                            {movie.title}
-                                                        </h3>
-                                                        <div className="shrink-0 rounded-full border border-fuchsia-300/20 bg-fuchsia-500/10 px-3 py-1 text-[11px] uppercase tracking-[0.18em] text-fuchsia-100">
-                                                            Movie
-                                                        </div>
-                                                    </div>
-                                                    <p className="text-sm leading-7 text-zinc-300">
-                                                        {movie.Released}
-                                                    </p>
-                                                    <p className="text-sm leading-7 text-zinc-300">
-                                                        {movie.description}
-                                                    </p>
-                                                    <div className="flex justify-between">
-                                                        <span >
-                                                            <SaveButton movie={{ ...movie, type: "movie" }} />
-
-                                                        </span>
-                                                        <span className="flex gap-3">
-
-
-                                                            <Likebutton movie={{ ...movie, type: "movie" }} />
-                                                            <DisLikebutton movie={{ ...movie, type: "movie" }} />
-                                                        </span>
-                                                    </div>
-                                                    <GetTrailer tmdbId={movie.tmdbId} type="movie" />
-
-
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                                {/* ADD THIS 👇 */}
-                                {hasMore && (
-                                    <div className="flex justify-center mt-8">
-                                        <button
-                                            onClick={LoadMore}
-                                            disabled={loadingMore}
-                                            className="h-14 rounded-2xl bg-gradient-to-r from-fuchsia-500 via-purple-500 to-fuchsia-400 px-8 text-sm font-semibold text-white shadow-[0_18px_45px_rgba(168,85,247,0.35)] transition hover:scale-[1.01] disabled:opacity-60"
-                                        >
-                                            {loadingMore ? "Loading more..." : "Load More"}
-                                        </button>
-                                    </div>
-                                )}
-
-
-                            </div>
-
-
-                        )}
-
                     </div>
-
-                </section>
-            </div>
+                )}
+            </section>
         </main>
-
     )
 }

@@ -1,4 +1,5 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { createHash } from "crypto";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]/route";
 import { prisma } from "@/lib/prisma";
@@ -6,13 +7,22 @@ import { redis } from "@/lib/redis";
 
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+const stopWords = new Set(["best", "top", "movies", "movie", "films", "film", "show", "series"]);
+
+type RecommendationInput = {
+  title: string
+  description: string
+  Released: string
+}
 
 
 const getMovieData = async (title: string, type: "movie" | "tv") => {
 
   try {
     // fuzzy search - first searching movie got from the Ai and picking the closes result
-    const res = await fetch(`https://api.themoviedb.org/3/search/${type}?api_key=${process.env.TMDB_API_KEY}&query=${encodeURIComponent(title)}`)
+    const res = await fetch(`https://api.themoviedb.org/3/search/${type}?api_key=${process.env.TMDB_API_KEY}&query=${encodeURIComponent(title)}`, {
+      next: { revalidate: 3600 },
+    })
 
     const data = await res.json()
 
@@ -66,25 +76,27 @@ export async function POST(req: Request) {
     // CREATE CACHE KEY FOR REDIS
     let query = preferences.toLowerCase()
 
-    const stopWord = ["best", "top", "movies", "movie", "films", "film", "show", "series"];
     query = query
       .split(/\s+/)
-      .filter((word: string) => !stopWord.includes(word))
+      .filter((word: string) => !stopWords.has(word))
       .join(" ")
-    const key = `movies:${session.user.id}:${query}:page-${seen.length}`
+    const seenTitles = Array.isArray(seen)
+      ? [...new Set(seen.filter((title: unknown): title is string => typeof title === "string"))]
+      : []
+    const cacheInput = JSON.stringify({ query, seen: seenTitles })
+    const cacheHash = createHash("sha256").update(cacheInput).digest("hex").slice(0, 20)
+    const key = `movies:${session.user.id}:${cacheHash}`
 
     // CHECk CACHE FIRST
     const cached = await redis.get(key);
     if (cached) {
-      console.log("cahche hit")
       return Response.json({
         source: "cache",
         ...cached
       })
     }
-    console.log(" CACHE MISS → calling APIs");
       //finding saved,liked,didsliked movies and then giving instrcutions to LLM
-    const [SavedMovies, LikedMovies, DislikedMovies] = await Promise.all([
+    const [SavedMovies, LikedMovies] = await Promise.all([
       prisma.savedMovie.findMany({
         where: { userId: session.user.id },
         select: { title: true }
@@ -93,15 +105,10 @@ export async function POST(req: Request) {
         where: { userId: session.user.id, reaction: "like" },
         select: { title: true }
       }),
-      prisma.movieReaction.findMany({
-        where: { userId: session.user.id, reaction: "dislike" },
-        select: { title: true }
-      })
     ])
 
-    const savedTitles = SavedMovies.map((e: any) => e.title)
-    const likedTitles = LikedMovies.map((e: any) => e.title)
-    const dislikedTitles = DislikedMovies.map((e: any) => e.title)
+    const savedTitles = SavedMovies.map((entry: { title: string }) => entry.title)
+    const likedTitles = LikedMovies.map((entry: { title: string }) => entry.title)
 
     const prompt = `
 You are a JSON generator.
@@ -134,7 +141,7 @@ Return exactly in this format:
 Return EXACTLY:
 
 Recommend 4 movies and 4 series for someone who likes: ${preferences}.
-Exclude: ${[...savedTitles, ...likedTitles, ...seen].join(", ")}
+Exclude: ${[...savedTitles, ...likedTitles, ...seenTitles].join(", ")}
 
 Make sure BOTH arrays are filled.
 Do not return empty arrays.
@@ -151,9 +158,8 @@ Do not return empty arrays.
     let text = await response.text();
     // 🔥 CLEAN STEP
     text = text.replace(/```json/g, "").replace(/```/g, "").trim();
-    console.log("clean TEXT:", text);
 
-    let parsed;
+    let parsed: { movies: RecommendationInput[]; series: RecommendationInput[] };
     try {
       parsed = JSON.parse(text);
     } catch (error) {
@@ -189,7 +195,7 @@ Do not return empty arrays.
     // HERE I MERGED BOTH OF THIS MOVIEWITHIMAGES AND SERIESWITHIMAGES TO RUN PARALLELY EARLIER IT WAS RUNNING FIRST MOVIEWITHIMAGES AND THEN SERIESWITHIMAGES WHICH WAS TAKING MORE TIME CUZ IT WAS RUNNING SUBSIQUENTIALLY
 
     const [MovieWithImages, SeriesWithImaages] = await Promise.all([
-      Promise.all(parsed.movies.map(async (movie: any) => {
+      Promise.all(parsed.movies.map(async (movie) => {
         const data = await getMovieData(movie.title, "movie");
         return {
           ...movie,
@@ -198,7 +204,7 @@ Do not return empty arrays.
         }
       })),
 
-      Promise.all(parsed.series.map(async (show: any) => {
+      Promise.all(parsed.series.map(async (show) => {
         const data = await getMovieData(show.title, "tv");
         return {
           ...show,
@@ -213,8 +219,6 @@ Do not return empty arrays.
       movies: MovieWithImages,
       series: SeriesWithImaages
     };
-    console.log(finalData.movies)
-
     // STORE IN REDIS FOR 10MINS
     redis.set(key, finalData, { ex: 600 }).catch(console.error)
 

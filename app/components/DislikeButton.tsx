@@ -2,7 +2,14 @@
 
 import { useState } from "react";
 
-export default function DisLikebutton({movie}: any) {
+type MoviePayload = {
+    title: string
+    image?: string | null
+    type: string
+    tmdbId?: number
+}
+
+export default function DisLikebutton({movie}: { movie: MoviePayload }) {
 
     const [loading, setloading] = useState(false)
     const [disliked, setdisLiked] = useState(false)
@@ -11,7 +18,7 @@ export default function DisLikebutton({movie}: any) {
         try {
 
             setloading(true)
-            const res = await fetch("/api/reactions", {
+            const response = await fetch("/api/reactions", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -25,6 +32,10 @@ export default function DisLikebutton({movie}: any) {
 
                 }),
             })
+            if (!response.ok) {
+                throw new Error("Unable to save reaction")
+            }
+            setdisLiked(true)
             } catch (error) {
                 console.log("error liking movie", error);
             }finally{
@@ -35,13 +46,15 @@ export default function DisLikebutton({movie}: any) {
             <button 
         onClick={handleLike} 
         disabled={loading || disliked}
-        className={`flex items-center gap-2 rounded-2xl p-10 border px-4 py-2 h-12 text-sm ${
+        title="Dislike"
+        aria-label="Dislike"
+        className={`flex h-9 w-9 items-center justify-center rounded-full border text-sm transition hover:-translate-y-0.5 ${
             disliked 
-            ? "border-green-400/30 bg-green-500/10 text-green-300"  // liked state
-            : "border-fuchsia-300/20 bg-fuchsia-500/10 text-fuchsia-100"  // default
+            ? "border-[#ffb0a7] bg-[#fff0ee] text-[#c64e42]"
+            : "border-[#ded4e7] bg-[#faf8ff] text-[#766b7d] hover:border-[#ffb0a7] hover:text-[#c64e42]"
         }`}
     >
-        {loading ? "Saving..." : disliked ? "👍 Disliked" : "Dislike"}
+        <span aria-hidden="true">↓</span>
     </button>
         )
     }
