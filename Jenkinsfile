@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        CONTROL_PLANE_IP = '18.61.60.156'
+        CONTROL_PLANE_IP = '18.61.237.246'
     }
 
     stages {
