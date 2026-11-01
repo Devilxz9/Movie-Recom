@@ -163,6 +163,7 @@ export default function RecommandPage() {
 
                 <form onSubmit={getRecommendation} className="mx-auto mt-10 max-w-4xl rounded-[1.75rem] border border-[#d8cce4] bg-white p-3 shadow-[0_18px_50px_rgba(54,36,90,.1)]">
                     <textarea
+                        suppressHydrationWarning
                         value={input}
                         onChange={(event) => setInput(event.target.value)}
                         rows={3}

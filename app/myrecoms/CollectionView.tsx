@@ -118,7 +118,7 @@ export default function CollectionView({ movies: initialMovies }: { movies: Save
             {([["all", "All Saved"], ["movie", "Movies"], ["tv", "Series"]] as const).map(([value, label]) => <button key={value} type="button" onClick={() => setFilter(value)} className={`rounded-full px-4 py-2.5 text-sm font-bold transition ${filter === value ? "bg-[#171321] text-white" : "text-[#766b7d] hover:bg-[#f0eafa] hover:text-[#171321]"}`}>{label}</button>)}
           </div>
           <label className="flex min-w-0 items-center gap-3 rounded-full bg-[#faf8ff] px-4 py-2.5 text-sm text-[#a99dae] sm:w-72">
-            <span aria-hidden="true">⌕</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Find something in your collection..." className="min-w-0 flex-1 bg-transparent text-[#171321] outline-none placeholder:text-[#a99dae]" />
+            <span aria-hidden="true">⌕</span><input suppressHydrationWarning value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Find something in your collection..." className="min-w-0 flex-1 bg-transparent text-[#171321] outline-none placeholder:text-[#a99dae]" />
           </label>
         </div>
 
