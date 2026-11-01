@@ -34,7 +34,7 @@ const MovieCard = memo(function MovieCard({ item, type, index }: { item: Recomme
             transition={{ delay: index * 0.06, duration: 0.45 }}
             className="group flex h-full flex-col overflow-hidden rounded-[1.5rem] border border-[#ded4e7] bg-white shadow-[0_14px_35px_rgba(54,36,90,.08)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_22px_48px_rgba(54,36,90,.14)]"
         >
-            <div className="relative aspect-[2/3] overflow-hidden bg-[#e8dff0]">
+            <div className="relative aspect-[3/4] overflow-hidden bg-[#e8dff0] sm:aspect-[2/3]">
                 {item.image ? (
                     <Image src={item.image} alt={`${item.title} poster`} fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw" className="object-cover transition duration-700 ease-out group-hover:scale-105" />
                 ) : (
@@ -43,22 +43,22 @@ const MovieCard = memo(function MovieCard({ item, type, index }: { item: Recomme
                 <div className="absolute inset-0 bg-gradient-to-t from-[#171321]/45 via-transparent to-transparent opacity-70" />
             </div>
 
-            <div className="flex flex-1 flex-col p-5">
+            <div className="flex flex-1 flex-col p-3 sm:p-5">
                 <div className="flex items-start justify-between gap-3">
-                    <h3 className="min-w-0 text-xl font-semibold leading-tight tracking-[-0.04em] text-[#171321]">{item.title}</h3>
-                    <span className="shrink-0 rounded-full bg-[#f0eafa] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-[#6d4bd7]">
+                    <h3 className="min-w-0 text-sm font-semibold leading-tight tracking-[-0.03em] text-[#171321] sm:text-xl sm:tracking-[-0.04em]">{item.title}</h3>
+                    <span className="shrink-0 rounded-full bg-[#f0eafa] px-2 py-1 text-[8px] font-bold uppercase tracking-[0.12em] text-[#6d4bd7] sm:px-2.5 sm:text-[10px] sm:tracking-[0.16em]">
                         {type === "tv" ? "Series" : "Movie"}
                     </span>
                 </div>
 
-                <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs font-medium text-[#766b7d]">
+                <div className="mt-2 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-[10px] font-medium text-[#766b7d] sm:mt-3 sm:gap-x-2 sm:text-xs">
                     <span>{item.Released || "Release year unavailable"}</span>
                     {item.runtime && <><span className="text-[#c0b5ca]">·</span><span>{item.runtime}</span></>}
                     {item.genre && <><span className="text-[#c0b5ca]">·</span><span>{item.genre}</span></>}
                     {item.rating && <span className="ml-auto font-bold text-[#171321]">★ {item.rating}</span>}
                 </div>
 
-                <p className="mt-4 line-clamp-3 min-h-[4.5rem] text-sm leading-6 text-[#766b7d]">{item.description}</p>
+                <p className="mt-3 line-clamp-3 min-h-[3.75rem] text-xs leading-5 text-[#766b7d] sm:mt-4 sm:min-h-[4.5rem] sm:text-sm sm:leading-6">{item.description}</p>
 
                 <div className="mt-auto pt-5">
                     <div className="flex items-center gap-2">
@@ -198,7 +198,7 @@ export default function RecommandPage() {
                                     <div><p className="text-xs font-bold uppercase tracking-[0.24em] text-[#6d4bd7]">Curated picks</p><h2 className="mt-2 text-4xl font-semibold tracking-[-0.06em]">Series</h2></div>
                                     <span className="text-sm font-medium text-[#a99dae]">{series.length} picks</span>
                                 </div>
-                                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">{series.map((item, index) => <MovieCard key={`${item.title}-${index}`} item={item} type="tv" index={index} />)}</div>
+                                <div className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4">{series.map((item, index) => <MovieCard key={`${item.title}-${index}`} item={item} type="tv" index={index} />)}</div>
                             </section>
                         )}
                         {movies.length > 0 && (
@@ -207,7 +207,7 @@ export default function RecommandPage() {
                                     <div><p className="text-xs font-bold uppercase tracking-[0.24em] text-[#6d4bd7]">Curated picks</p><h2 className="mt-2 text-4xl font-semibold tracking-[-0.06em]">Movies</h2></div>
                                     <span className="text-sm font-medium text-[#a99dae]">{movies.length} picks</span>
                                 </div>
-                                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">{movies.map((item, index) => <MovieCard key={`${item.title}-${index}`} item={item} type="movie" index={index} />)}</div>
+                                <div className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4">{movies.map((item, index) => <MovieCard key={`${item.title}-${index}`} item={item} type="movie" index={index} />)}</div>
                             </section>
                         )}
                         {hasMore && (

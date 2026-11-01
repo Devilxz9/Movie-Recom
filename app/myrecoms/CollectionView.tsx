@@ -40,16 +40,16 @@ const CollectionCard = memo(function CollectionCard({ movie, index, onRemove }: 
       transition={{ delay: index * 0.05, duration: 0.35 }}
       className="group flex h-full flex-col overflow-hidden rounded-[1.5rem] border border-[#ded4e7] bg-white shadow-[0_14px_35px_rgba(54,36,90,.08)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_22px_48px_rgba(54,36,90,.14)]"
     >
-      <div className="relative aspect-[2/3] overflow-hidden bg-[#e8dff0]">
+      <div className="relative aspect-[3/4] overflow-hidden bg-[#e8dff0] sm:aspect-[2/3]">
         {movie.image ? <Image src={movie.image} alt={`${movie.title} poster`} fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw" className="object-cover transition duration-700 ease-out group-hover:scale-105" /> : <div className="flex h-full items-center justify-center px-6 text-center text-sm text-[#766b7d]">Poster unavailable</div>}
         <div className="absolute inset-0 bg-gradient-to-t from-[#171321]/45 via-transparent to-transparent opacity-70" />
       </div>
-      <div className="flex flex-1 flex-col p-5">
+      <div className="flex flex-1 flex-col p-3 sm:p-5">
         <div className="flex items-start justify-between gap-3">
-          <h3 className="min-w-0 text-xl font-semibold leading-tight tracking-[-0.04em] text-[#171321]">{movie.title}</h3>
-          <span className="shrink-0 rounded-full bg-[#f0eafa] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-[#6d4bd7]">{type === "tv" ? "Series" : "Movie"}</span>
+          <h3 className="min-w-0 text-sm font-semibold leading-tight tracking-[-0.03em] text-[#171321] sm:text-xl sm:tracking-[-0.04em]">{movie.title}</h3>
+          <span className="shrink-0 rounded-full bg-[#f0eafa] px-2 py-1 text-[8px] font-bold uppercase tracking-[0.12em] text-[#6d4bd7] sm:px-2.5 sm:text-[10px] sm:tracking-[0.16em]">{type === "tv" ? "Series" : "Movie"}</span>
         </div>
-        <p className="mt-3 text-xs font-medium text-[#766b7d]">Saved {formatSavedDate(movie.createdAt)}</p>
+        <p className="mt-2 text-[10px] font-medium text-[#766b7d] sm:mt-3 sm:text-xs">Saved {formatSavedDate(movie.createdAt)}</p>
         <div className="mt-auto space-y-2 pt-5">
           <GetTrailer tmdbId={movie.tmdbId ?? undefined} type={type} />
           <div className="grid grid-cols-[1fr_auto] gap-2">
@@ -130,7 +130,7 @@ export default function CollectionView({ movies: initialMovies }: { movies: Save
         ) : visibleMovies.length === 0 ? (
           <div className="mt-8 rounded-[1.5rem] border border-dashed border-[#cfc1dc] bg-white/60 px-6 py-16 text-center"><h2 className="text-2xl font-semibold tracking-[-0.04em]">No matches in your collection.</h2><p className="mt-3 text-sm text-[#766b7d]">We couldn&apos;t find anything matching your search. Try another title or adjust your filters.</p><button type="button" onClick={clearFilters} className="mt-6 rounded-full bg-[#171321] px-5 py-3 text-sm font-bold text-white">Clear Filters</button></div>
         ) : (
-          <motion.div layout className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <motion.div layout className="mt-8 grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4">
             <AnimatePresence mode="popLayout">{visibleMovies.map((movie, index) => <CollectionCard key={movie.id} movie={movie} index={index} onRemove={setPendingRemove} />)}</AnimatePresence>
           </motion.div>
         )}
