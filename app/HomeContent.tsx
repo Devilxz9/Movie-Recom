@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
 
 type TrendingMovie = {
   tmdbId: number;
@@ -13,6 +14,14 @@ type TrendingMovie = {
   image: string;
 };
 
+const HOMEPAGE_CACHE_KEY = "movie-recom:homepage-movies";
+const HOMEPAGE_CACHE_TTL = 5 * 24 * 60 * 60 * 1000;
+
+type HomepageCache = {
+  movies: TrendingMovie[];
+  cachedAt: number;
+};
+
 function BookmarkIcon() {
   return (
     <svg aria-hidden="true" className="h-4 w-4" viewBox="0 0 16 16" fill="none">
@@ -21,7 +30,39 @@ function BookmarkIcon() {
   );
 }
 
-export default function Home({ trending }: { trending: TrendingMovie[] }) {
+export default function Home() {
+  const [trending, setTrending] = useState<TrendingMovie[]>([]);
+
+  useEffect(() => {
+    let cachedMovies: TrendingMovie[] | null = null;
+
+    try {
+      const cached = JSON.parse(localStorage.getItem(HOMEPAGE_CACHE_KEY) || "null") as HomepageCache | null;
+      if (cached && Date.now() - cached.cachedAt < HOMEPAGE_CACHE_TTL && Array.isArray(cached.movies)) {
+        cachedMovies = cached.movies;
+        setTrending(cached.movies);
+      }
+    } catch (error) {
+      console.error("Unable to read homepage movie cache", error);
+    }
+
+    const refreshMovies = async () => {
+      if (cachedMovies) return;
+
+      try {
+        const response = await fetch("/api/homepage-movies");
+        if (!response.ok) throw new Error(`Homepage movies request failed with status ${response.status}`);
+        const movies = await response.json() as TrendingMovie[];
+        setTrending(movies);
+        localStorage.setItem(HOMEPAGE_CACHE_KEY, JSON.stringify({ movies, cachedAt: Date.now() }));
+      } catch (error) {
+        console.error("Unable to load homepage movies", error);
+      }
+    };
+
+    void refreshMovies();
+  }, []);
+
   return (
     <main className="min-h-screen overflow-hidden bg-[#f3efff] text-[#171321]">
       <section className="relative isolate min-h-[700px] overflow-hidden bg-[#171321] text-white sm:min-h-[760px]">
@@ -91,7 +132,7 @@ export default function Home({ trending }: { trending: TrendingMovie[] }) {
           </div>
 
           <div className="mt-10 flex snap-x gap-5 overflow-x-auto pb-5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            {trending.map((movie, index) => (
+            {trending.length > 0 ? trending.map((movie, index) => (
               <motion.article
                 key={movie.title}
                 initial={{ opacity: 0, y: 18 }}
@@ -115,6 +156,8 @@ export default function Home({ trending }: { trending: TrendingMovie[] }) {
                   </button>
                 </div>
               </motion.article>
+            )) : [1, 2, 3, 4, 5].map((item) => (
+              <div key={item} className="h-[276px] w-[184px] shrink-0 animate-pulse rounded-[1.25rem] bg-[#dcd4ed] sm:h-[315px] sm:w-[210px]" />
             ))}
           </div>
           <Link href="/recommend" className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-[#6d4bd7] sm:hidden">View all trending <span>↗</span></Link>

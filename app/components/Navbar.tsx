@@ -11,7 +11,7 @@ export default function Navbar() {
   const isMyRecomsActive = pathname === "/myrecoms";
 
   return (
-    <nav className="relative z-50 -mb-20 w-full px-2.5 pt-0 sm:px-3 lg:px-2.5">
+    <nav suppressHydrationWarning className="relative z-50 -mb-20 w-full px-2.5 pt-0 sm:px-3 lg:px-2.5">
       <div className="mx-auto flex min-h-[3.75rem] w-full max-w-[1360px] items-center justify-between gap-3 rounded-[1.05rem] border border-white/20 bg-[#292634]/65 px-3.5 py-2.5 text-white shadow-[0_14px_45px_rgba(10,8,18,0.22),inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-2xl transition-colors duration-300 hover:border-white/30 sm:min-h-[4.75rem] sm:rounded-[0.95rem] sm:px-8 sm:py-3 lg:px-9">
         <Link href="/" className="group shrink-0">
           <span className="relative block text-[1.15rem] font-bold tracking-[-0.06em] text-white transition duration-300 group-hover:text-[#eee7ff] sm:text-2xl">
