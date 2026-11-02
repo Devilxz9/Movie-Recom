@@ -148,32 +148,38 @@ export default function RecommandPage() {
     const hasResults = movies.length > 0 || series.length > 0
 
     return (
-        <main className="min-h-screen overflow-hidden bg-[#f3efff] text-[#171321]">
-            <div className="pointer-events-none absolute inset-x-0 top-0 h-[34rem] bg-[radial-gradient(circle_at_top,_rgba(189,163,250,.32),_transparent_62%)]" />
+        <main className="relative min-h-screen overflow-hidden bg-[#211b32] text-white">
+            <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 bg-cover bg-center opacity-35"
+                style={{ backgroundImage: "url('https://images.unsplash.com/photo-1534088568595-a066f410bcda?auto=format&fit=crop&w=2400&q=80')" }}
+            />
+            <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(30,24,49,.86)_0%,rgba(51,39,76,.72)_38%,rgba(246,242,255,.92)_100%)]" />
+            <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 h-[38rem] bg-[radial-gradient(circle_at_50%_10%,rgba(224,211,255,.28),transparent_58%)]" />
             <section className="relative mx-auto max-w-7xl px-5 pb-16 pt-12 sm:px-8 sm:pt-16 lg:px-12">
                 <div className="mx-auto max-w-3xl text-center">
-                    <p className="flex items-center justify-center gap-3 text-xs font-bold uppercase tracking-[0.28em] text-[#6d4bd7]">
-                        <span className="h-px w-8 bg-[#ff6b5b]" /> Personalised film discovery <span className="h-px w-8 bg-[#ff6b5b]" />
+                    <p className="flex items-center justify-center gap-3 text-xs font-bold uppercase tracking-[0.28em] text-[#dfd0ff]">
+                        <span className="h-px w-8 bg-[#bda3fa]" /> Personalised film discovery <span className="h-px w-8 bg-[#bda3fa]" />
                     </p>
-                    <h1 className="mt-5 text-5xl font-semibold leading-[0.95] tracking-[-0.075em] sm:text-7xl">Tell us what you&apos;re in the mood for.</h1>
-                    <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-[#766b7d]">
+                    <h1 className="mt-5 text-5xl font-semibold leading-[0.95] tracking-[-0.075em] text-white drop-shadow-[0_0_24px_rgba(210,184,255,.45)] sm:text-7xl">Tell us what you&apos;re in the mood for.</h1>
+                    <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-white/70">
                         Describe the kind of film you&apos;re looking for. A genre, a feeling, a storyline, or even a movie you recently enjoyed. We&apos;ll find films worth your time.
                     </p>
                 </div>
 
-                <form onSubmit={getRecommendation} className="mx-auto mt-10 max-w-4xl rounded-[1.75rem] border border-[#d8cce4] bg-white p-3 shadow-[0_18px_50px_rgba(54,36,90,.1)]">
+                <form onSubmit={getRecommendation} className="mx-auto mt-10 max-w-4xl rounded-[1.75rem] border border-[#d9c8f2]/35 bg-[#eee8fa]/65 p-3 shadow-[0_20px_65px_rgba(30,19,58,.32),0_0_30px_rgba(177,139,237,.14)] backdrop-blur-xl">
                     <textarea
                         suppressHydrationWarning
                         value={input}
                         onChange={(event) => setInput(event.target.value)}
                         rows={3}
                         placeholder="e.g. I want a mind-bending thriller with unexpected twists, like Shutter Island..."
-                        className="w-full resize-none rounded-[1.25rem] bg-[#faf8ff] px-5 py-4 text-base leading-7 text-[#171321] outline-none placeholder:text-[#a99dae] focus:ring-2 focus:ring-[#bda3fa]"
+                        className="w-full resize-none rounded-[1.25rem] border border-[#d9c8f2]/45 bg-[#dcd2ef]/55 px-5 py-4 text-base leading-7 text-[#171321] outline-none placeholder:text-[#837595] transition focus:border-[#9a78ff] focus:bg-[#eee8fa]/75 focus:ring-4 focus:ring-[#bda3fa]/25"
                     />
                     <div className="flex flex-col items-start justify-between gap-4 px-2 pb-1 pt-3 sm:flex-row sm:items-center">
-                        <p className="text-xs font-medium text-[#a99dae]">Be as specific or as spontaneous as you like.</p>
-                        <button type="submit" disabled={loading || !input.trim()} className="inline-flex items-center gap-3 rounded-full bg-[#4f8dff] px-6 py-3.5 text-sm font-bold text-[#10182c] transition hover:-translate-y-0.5 hover:bg-[#79aaff] disabled:cursor-not-allowed disabled:opacity-50">
-                            Find My Movies <span className="text-lg">→</span>
+                        <p className="text-xs font-medium text-[#766b7d]">Be as specific or as spontaneous as you like.</p>
+                        <button type="submit" disabled={loading || !input.trim()} className="group inline-flex items-center gap-3 rounded-full border border-[#bca3ff] bg-[#7651cf] px-6 py-3.5 text-sm font-bold text-white shadow-[0_8px_22px_rgba(118,81,207,.3)] transition hover:-translate-y-0.5 hover:bg-[#8966e4] hover:shadow-[0_10px_28px_rgba(118,81,207,.45)] disabled:cursor-not-allowed disabled:opacity-50">
+                            Find My Movies <span className="text-lg transition-transform group-hover:translate-x-1">→</span>
                         </button>
                     </div>
                     {loading && (
@@ -185,13 +191,13 @@ export default function RecommandPage() {
 
                 {!hasResults && !loading && (
                     <div className="mx-auto mt-14 max-w-xl text-center">
-                        <p className="text-2xl font-semibold tracking-[-0.04em]">Your next favourite is somewhere out there.</p>
-                        <p className="mt-3 text-sm leading-6 text-[#766b7d]">Start with a feeling, a favourite director, or the kind of story you want to get lost in.</p>
+                        <p className="text-2xl font-semibold tracking-[-0.04em] text-[#211b32]">Your next favourite is somewhere out there.</p>
+                        <p className="mt-3 text-sm leading-6 text-[#5f536f]">Start with a feeling, a favourite director, or the kind of story you want to get lost in.</p>
                     </div>
                 )}
 
                 {hasResults && (
-                    <div className="mt-16 space-y-14">
+                    <div className="mt-16 space-y-14 text-[#211b32]">
                         {series.length > 0 && (
                             <section>
                                 <div className="mb-6 flex items-end justify-between gap-4">

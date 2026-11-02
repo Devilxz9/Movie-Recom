@@ -99,30 +99,31 @@ export default function CollectionView({ movies: initialMovies }: { movies: Save
   const clearFilters = () => { setQuery(""); setFilter("all") }
 
   return (
-    <main className="min-h-screen overflow-hidden bg-[#f3efff] text-[#171321]">
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-[34rem] bg-[radial-gradient(circle_at_top,_rgba(189,163,250,.32),_transparent_62%)]" />
+    <main className="relative min-h-screen overflow-hidden bg-[#302744] text-white">
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_-10%,rgba(221,205,255,.3),transparent_48%),linear-gradient(180deg,#302744_0%,#3b2e52_46%,#f0ebfb_100%)]" />
+      <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 h-[34rem] bg-[radial-gradient(circle_at_top,_rgba(189,163,250,.22),_transparent_62%)]" />
       <section className="relative mx-auto max-w-7xl px-5 pb-20 pt-12 sm:px-8 sm:pt-16 lg:px-12">
-        <header className="flex flex-col gap-8 border-b border-[#ded4e7] pb-10 lg:flex-row lg:items-end lg:justify-between">
+        <header className="flex flex-col gap-8 border-b border-white/20 pb-10 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-2xl">
-            <p className="flex items-center gap-3 text-xs font-bold uppercase tracking-[0.28em] text-[#6d4bd7]"><span className="h-px w-8 bg-[#ff6b5b]" /> Your personal collection</p>
-            <h1 className="mt-5 text-6xl font-semibold leading-[0.9] tracking-[-0.08em] sm:text-8xl">My Recoms</h1>
-            <p className="mt-5 max-w-xl text-base leading-7 text-[#766b7d]">All the stories you&apos;ve saved, gathered in one place. Revisit your discoveries and keep track of what you want to watch next.</p>
+            <p className="flex items-center gap-3 text-xs font-bold uppercase tracking-[0.28em] text-[#dfd0ff]"><span className="h-px w-8 bg-[#bda3fa]" /> Your personal collection</p>
+            <h1 className="mt-5 text-6xl font-semibold leading-[0.9] tracking-[-0.08em] text-white drop-shadow-[0_0_22px_rgba(210,184,255,.3)] sm:text-8xl">My Recoms</h1>
+            <p className="mt-5 max-w-xl text-base leading-7 text-white/70">All the stories you&apos;ve saved, gathered in one place. Revisit your discoveries and keep track of what you want to watch next.</p>
           </div>
-          <div className="flex flex-wrap items-center gap-4 text-sm text-[#766b7d]">
-            <span><strong className="text-xl text-[#171321]">{movies.length}</strong> saved</span><span className="h-5 w-px bg-[#cfc1dc]" /><span>{counts.movies} movies</span><span>{counts.series} series</span>
+          <div className="flex flex-wrap items-center gap-4 text-sm text-white/65">
+            <span><strong className="text-xl text-white">{movies.length}</strong> saved</span><span className="h-5 w-px bg-white/25" /><span>{counts.movies} movies</span><span>{counts.series} series</span>
           </div>
         </header>
 
-        <div className="mt-8 flex flex-col gap-4 rounded-[1.25rem] border border-[#ded4e7] bg-white/70 p-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-8 flex flex-col gap-4 rounded-[1.25rem] border border-white/25 bg-[#eee8fa]/65 p-3 shadow-[0_18px_45px_rgba(25,16,46,.2)] backdrop-blur-xl sm:flex-row sm:items-center sm:justify-between">
           <div className="flex gap-1">
-            {([["all", "All Saved"], ["movie", "Movies"], ["tv", "Series"]] as const).map(([value, label]) => <button key={value} type="button" onClick={() => setFilter(value)} className={`rounded-full px-4 py-2.5 text-sm font-bold transition ${filter === value ? "bg-[#171321] text-white" : "text-[#766b7d] hover:bg-[#f0eafa] hover:text-[#171321]"}`}>{label}</button>)}
+            {([["all", "All Saved"], ["movie", "Movies"], ["tv", "Series"]] as const).map(([value, label]) => <button key={value} type="button" onClick={() => setFilter(value)} className={`rounded-full px-4 py-2.5 text-sm font-bold transition ${filter === value ? "bg-[#302744] text-white shadow-[0_5px_16px_rgba(48,39,68,.25)]" : "text-[#625575] hover:bg-white/60 hover:text-[#302744]"}`}>{label}</button>)}
           </div>
-          <label className="flex min-w-0 items-center gap-3 rounded-full bg-[#faf8ff] px-4 py-2.5 text-sm text-[#a99dae] sm:w-72">
+          <label className="flex min-w-0 items-center gap-3 rounded-full border border-[#d9c8f2]/55 bg-[#f5f1fc]/70 px-4 py-2.5 text-sm text-[#837595] sm:w-72">
             <span aria-hidden="true">⌕</span><input suppressHydrationWarning value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Find something in your collection..." className="min-w-0 flex-1 bg-transparent text-[#171321] outline-none placeholder:text-[#a99dae]" />
           </label>
         </div>
 
-        <div className="mt-12 flex items-end justify-between gap-4"><div><p className="text-xs font-bold uppercase tracking-[0.24em] text-[#6d4bd7]">Your collection, your next watch.</p><p className="mt-2 text-sm text-[#766b7d]">Every saved film is a possibility. Pick up where your curiosity left off.</p></div><span className="text-sm font-medium text-[#a99dae]">{visibleMovies.length} shown</span></div>
+        <div className="mt-12 flex items-end justify-between gap-4"><div><p className="text-xs font-bold uppercase tracking-[0.24em] text-[#6d4bd7]">Your collection, your next watch.</p><p className="mt-2 text-sm text-[#5f536f]">Every saved film is a possibility. Pick up where your curiosity left off.</p></div><span className="text-sm font-medium text-[#766b7d]">{visibleMovies.length} shown</span></div>
 
         {error && <p className="mt-5 rounded-xl bg-[#fff0ee] px-4 py-3 text-sm text-[#c64e42]">{error}</p>}
         {movies.length === 0 ? (
