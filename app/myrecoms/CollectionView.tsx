@@ -119,11 +119,11 @@ export default function CollectionView({ movies: initialMovies }: { movies: Save
             {([["all", "All Saved"], ["movie", "Movies"], ["tv", "Series"]] as const).map(([value, label]) => <button key={value} type="button" onClick={() => setFilter(value)} className={`rounded-full px-4 py-2.5 text-sm font-bold transition ${filter === value ? "bg-[#302744] text-white shadow-[0_5px_16px_rgba(48,39,68,.25)]" : "text-[#625575] hover:bg-white/60 hover:text-[#302744]"}`}>{label}</button>)}
           </div>
           <label className="flex min-w-0 items-center gap-3 rounded-full border border-[#d9c8f2]/55 bg-[#f5f1fc]/70 px-4 py-2.5 text-sm text-[#837595] sm:w-72">
-            <span aria-hidden="true">⌕</span><input suppressHydrationWarning value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Find something in your collection..." className="min-w-0 flex-1 bg-transparent text-[#171321] outline-none placeholder:text-[#a99dae]" />
+            <span aria-hidden="true">⌕</span><input suppressHydrationWarning value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Find something in your collection..." className="min-w-0 flex-1 bg-transparent text-[#171321] outline-none placeholder:text-[#7b6a83]" />
           </label>
         </div>
 
-        <div className="mt-12 flex items-end justify-between gap-4"><div><p className="text-xs font-bold uppercase tracking-[0.24em] text-[#6d4bd7]">Your collection, your next watch.</p><p className="mt-2 text-sm text-[#5f536f]">Every saved film is a possibility. Pick up where your curiosity left off.</p></div><span className="text-sm font-medium text-[#766b7d]">{visibleMovies.length} shown</span></div>
+        <div className="mt-12 flex items-end justify-between gap-4"><div><p className="text-xs font-bold uppercase tracking-[0.24em] text-[#6d4bd7]">Your collection, your next watch.</p><p className="mt-2 text-sm text-[#b9b1c4]">Every saved film is a possibility. Pick up where your curiosity left off.</p></div><span className="text-sm font-medium text-[#d3ccd8]">{visibleMovies.length} shown</span></div>
 
         {error && <p className="mt-5 rounded-xl bg-[#fff0ee] px-4 py-3 text-sm text-[#c64e42]">{error}</p>}
         {movies.length === 0 ? (
