@@ -90,3 +90,9 @@ model MovieReaction {
 
   @@unique([userId, title]) // prevents duplicate reactions on same movie
 }
+
+model HomepageMovieCache {
+  id        Int      @id @default(1)
+  movies    Json
+  fetchedAt DateTime @updatedAt
+}

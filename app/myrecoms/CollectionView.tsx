@@ -4,6 +4,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { memo, useMemo, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
+import { signOut } from "next-auth/react"
 import GetTrailer from "../components/GetTrailers"
 
 type SavedMovie = {
@@ -111,6 +112,12 @@ export default function CollectionView({ movies: initialMovies }: { movies: Save
           </div>
           <div className="flex flex-wrap items-center gap-4 text-sm text-white/65">
             <span><strong className="text-xl text-white">{movies.length}</strong> saved</span><span className="h-5 w-px bg-white/25" /><span>{counts.movies} movies</span><span>{counts.series} series</span>
+            <button type="button" onClick={() => signOut({ callbackUrl: "/" })} className="inline-flex items-center gap-2 rounded-full border border-[#ffb0a7]/45 bg-[#ff8c7f]/10 px-3.5 py-2 text-xs font-bold text-[#ffe0dc] transition hover:bg-[#ff8c7f]/20 sm:hidden">
+              <svg className="h-3.5 w-3.5" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                <path d="M5 7h8M9 4l3 3-3 3M5 2H2a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              Log out
+            </button>
           </div>
         </header>
 
