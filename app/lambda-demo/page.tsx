@@ -8,20 +8,29 @@ import {
   ArrowUpRight,
   Bot,
   CheckCircle2,
-  Cloud,
+  Film,
   Loader2,
   RotateCcw,
   Send,
   Sparkles,
-  Zap,
+  Star,
+  Ticket,
+  Tv,
 } from "lucide-react";
 
 const API_URL = "https://msdhgbu619.execute-api.ap-south-2.amazonaws.com/ask";
 
 const loadingMessages = [
-  "Warming up the movie brain...",
-  "Reading between the lines...",
-  "Crafting a thoughtful answer...",
+  "Opening the film desk...",
+  "Reading the story between the lines...",
+  "Preparing a thoughtful watch note...",
+];
+
+const moviePrompts = [
+  { label: "Explain a confusing ending", prompt: "Explain the ending of " },
+  { label: "Find something to watch", prompt: "Recommend a movie or series for me. I want " },
+  { label: "Compare two titles", prompt: "Compare these two movies or series: " },
+  { label: "Build a watch order", prompt: "What is the best watch order for " },
 ];
 
 function getErrorMessage(status: number, body: unknown) {
@@ -145,8 +154,8 @@ export default function LambdaDemo() {
               <Sparkles size={21} />
             </div>
             <div>
-              <p className="text-sm font-bold tracking-[-0.03em]">AI Playground</p>
-              <p className="mt-0.5 text-[11px] text-white/50">MovieRecom Labs</p>
+              <p className="text-sm font-bold tracking-[-0.03em]">The Movie Desk</p>
+              <p className="mt-0.5 text-[11px] text-white/50">Stories, scenes & series</p>
             </div>
           </div>
 
@@ -168,7 +177,7 @@ export default function LambdaDemo() {
             className="mx-auto inline-flex items-center gap-2 rounded-full border border-[#bda3fa]/25 bg-[#bda3fa]/10 px-4 py-2 text-[10px] font-bold uppercase tracking-[0.22em] text-[#d9c9ff]"
           >
             <span className="h-1.5 w-1.5 rounded-full bg-[#79d99a] shadow-[0_0_10px_#79d99a]" />
-            Serverless AI experiment
+            Your next watch, decoded
           </motion.div>
           <motion.h1
             initial={{ opacity: 0, y: 18 }}
@@ -176,9 +185,9 @@ export default function LambdaDemo() {
             transition={{ delay: 0.08 }}
             className="mt-7 text-5xl font-semibold leading-[0.95] tracking-[-0.075em] sm:text-7xl"
           >
-            Ask clearly.
+            Ask about the
             <br />
-            <span className="text-[#bda3fa]">Think deeper.</span>
+            <span className="text-[#bda3fa]">stories you love.</span>
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 14 }}
@@ -186,8 +195,9 @@ export default function LambdaDemo() {
             transition={{ delay: 0.16 }}
             className="mx-auto mt-6 max-w-2xl text-sm leading-7 text-white/60 sm:text-base"
           >
-            Explore ideas with a fast, thoughtful AI assistant running through
-            AWS Lambda and Gemini.
+            Get thoughtful answers about movies and series. Unpack an ending,
+            find your next favourite, or follow a story across its whole
+            universe.
           </motion.p>
         </section>
 
@@ -205,22 +215,41 @@ export default function LambdaDemo() {
               id="question"
               value={question}
               onChange={(event) => setQuestion(event.target.value)}
-              placeholder="Ask anything... e.g. Explain how AWS Lambda works."
+              placeholder="Ask about a movie or series... e.g. Why does Interstellar end that way?"
               rows={5}
               maxLength={2000}
               disabled={loading}
               className="w-full resize-none rounded-[1.25rem] border border-white/10 bg-[#171321]/80 px-5 py-4 text-sm leading-7 text-white outline-none placeholder:text-white/35 transition focus:border-[#bda3fa]/70 focus:ring-4 focus:ring-[#bda3fa]/10 disabled:cursor-wait disabled:opacity-70 sm:px-6 sm:py-5 sm:text-base"
             />
+            <div className="px-1 pt-3 sm:px-2">
+              <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.18em] text-white/35">
+                <Ticket size={13} className="text-[#bda3fa]" />
+                Try a film question
+              </div>
+              <div className="mt-2 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                {moviePrompts.map(({ label, prompt }) => (
+                  <button
+                    key={label}
+                    type="button"
+                    disabled={loading}
+                    onClick={() => setQuestion(prompt)}
+                    className="shrink-0 rounded-full border border-white/10 bg-white/[0.04] px-3 py-2 text-left text-xs font-medium text-white/65 transition hover:border-[#bda3fa]/45 hover:bg-[#bda3fa]/10 hover:text-[#eee7ff] disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
             <div className="flex flex-col items-start justify-between gap-4 px-2 pb-1 pt-3 sm:flex-row sm:items-center">
               <p className="text-xs text-white/40">
-                {question.length}/2000 · Be specific for a better answer
+                {question.length}/2000 · The more context you give, the better
               </p>
               <button
                 type="submit"
                 disabled={loading || !question.trim()}
                 className="group inline-flex w-full items-center justify-center gap-3 rounded-full bg-[#bda3fa] px-6 py-3.5 text-sm font-bold text-[#171321] shadow-[0_8px_22px_rgba(189,163,250,.2)] transition hover:-translate-y-0.5 hover:bg-white hover:shadow-[0_12px_30px_rgba(189,163,250,.3)] disabled:cursor-not-allowed disabled:opacity-40 sm:w-auto"
               >
-                Ask Gemini
+                Ask MovieRecom
                 <Send size={15} className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
               </button>
             </div>
@@ -284,8 +313,8 @@ export default function LambdaDemo() {
                   <Bot size={20} />
                 </div>
                 <div>
-                  <p className="text-sm font-bold text-white">Gemini response</p>
-                  <p className="mt-0.5 text-xs text-white/45">Generated through AWS Lambda</p>
+                  <p className="text-sm font-bold text-white">Your story note</p>
+                  <p className="mt-0.5 text-xs text-white/45">A thoughtful answer for your watchlist</p>
                 </div>
                 <CheckCircle2 size={17} className="ml-auto text-[#79d99a]" />
               </div>
@@ -313,9 +342,9 @@ export default function LambdaDemo() {
 
         <section className="mx-auto mt-16 grid max-w-4xl grid-cols-1 gap-3 sm:grid-cols-3">
           {[
-            { icon: Cloud, label: "AWS Lambda", detail: "Serverless backend", color: "text-[#ff9a70]" },
-            { icon: Zap, label: "API Gateway", detail: "Secure endpoint", color: "text-[#f6cf69]" },
-            { icon: Sparkles, label: "Gemini", detail: "Intelligent answers", color: "text-[#bda3fa]" },
+            { icon: Film, label: "Film notes", detail: "Plots, endings & themes", color: "text-[#ff9a70]" },
+            { icon: Tv, label: "Series worlds", detail: "Characters & watch order", color: "text-[#f6cf69]" },
+            { icon: Star, label: "Personal picks", detail: "Ideas for your next watch", color: "text-[#bda3fa]" },
           ].map(({ icon: Icon, label, detail, color }) => (
             <div key={label} className="rounded-[1.25rem] border border-white/10 bg-white/[0.04] p-4 transition hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/[0.07]">
               <Icon size={20} className={`mb-4 ${color}`} />
